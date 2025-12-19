@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+
 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -10,6 +10,3 @@ createRoot(document.getElementById('root')).render(
     <App />
   </StrictMode>,
 )
-supabase.auth.getSession().then(res => {
-  console.log("Supabase connected:", res)
-})
