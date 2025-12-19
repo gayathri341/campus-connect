@@ -32,16 +32,10 @@ export default function Login() {
       .eq('id', user.id)
       .single()
 
-      if (profileError) {
-        // Profile not exists → create it
-        await supabase.from('profiles').insert({
-          id: user.id,
-          name: '',
-          domain: '',
-          is_active: true,
-        })
-      }
-      
+    if (profileError) {
+      alert('Profile not found')
+      return
+    }
 
     // ❌ Account disabled
     if (!profile.is_active) {
