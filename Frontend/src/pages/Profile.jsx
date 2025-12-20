@@ -30,37 +30,43 @@ export default function Profile() {
     loadProfile()
   }, [])
 
-  // 🔹 Upload profile picture
   const uploadAvatar = async () => {
     if (!file || !user) return
-
-    const fileName = `${user.id}.png`
-
-    // upload / replace image
-    await supabase.storage
+  
+    const filePath = `${user.id}/avatar.png`
+  
+    // Upload (overwrite allowed)
+    const { error: uploadError } = await supabase.storage
       .from('avatars')
-      .upload(fileName, file, { upsert: true })
-
-    // get public URL
+      .upload(filePath, file, { upsert: true })
+  
+    if (uploadError) {
+      console.error(uploadError)
+      alert('Upload failed')
+      return
+    }
+  
+    // Get public URL
     const { data } = supabase.storage
       .from('avatars')
-      .getPublicUrl(fileName)
-
-    // save URL in profiles table
+      .getPublicUrl(filePath)
+  
+    // Save URL in profiles table
     await supabase
       .from('profiles')
       .update({ avatar_url: data.publicUrl })
       .eq('id', user.id)
-
-    // refresh profile after upload
+  
+    // Refresh profile
     const { data: updatedProfile } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single()
-
+  
     setProfile(updatedProfile)
   }
+  
 
   if (!profile) return <p>Loading profile...</p>
 
