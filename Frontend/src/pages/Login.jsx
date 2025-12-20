@@ -14,47 +14,49 @@ export default function Login() {
       password,
     })
 
-    // ❌ Login failed
     if (error) {
       alert(error.message)
       return
     }
 
-    // ✅ Login success
     const user = data.user
 
-    // 2️⃣ Try to fetch profile SAFELY
+    // 2️⃣ Try to fetch profile safely
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_active')
       .eq('id', user.id)
       .maybeSingle()
 
-    // 3️⃣ If profile not exists → create it
+    // 3️⃣ If profile not exists → create it (LOG ERROR)
     if (!profile) {
-      await supabase.from('profiles').insert({
-        id: user.id,
-        name: '',
-        domain: '',
-        is_active: true,
-      })
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          name: '',
+          domain: '',
+          is_active: true,
+        })
+
+      console.log('INSERT PROFILE ERROR:', insertError)
     }
 
-    // 4️⃣ Re-fetch profile after ensure creation
+    // 4️⃣ Re-fetch profile
     const { data: finalProfile } = await supabase
       .from('profiles')
       .select('is_active')
       .eq('id', user.id)
       .single()
 
-    // ❌ Account disabled
-    if (!finalProfile.is_active) {
+    // ❌ Safe check (no crash)
+    if (!finalProfile || !finalProfile.is_active) {
       await supabase.auth.signOut()
-      alert('Your account has been disabled')
+      alert('Account disabled or profile missing')
       return
     }
 
-    // ✅ Everything OK
+    // ✅ Success
     alert('Login successful')
     navigate('/dashboard')
   }
