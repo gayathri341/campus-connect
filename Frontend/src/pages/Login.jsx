@@ -2,14 +2,12 @@ import { useState } from 'react'
 import { supabase } from '../supabase'
 import { useNavigate } from 'react-router-dom'
 
-
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
 
   const handleLogin = async () => {
-    
     // 1️⃣ Try login
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -25,20 +23,32 @@ export default function Login() {
     // ✅ Login success
     const user = data.user
 
-    // 2️⃣ Check if account is active
-    const { data: profile, error: profileError } = await supabase
+    // 2️⃣ Try to fetch profile SAFELY
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_active')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    // 3️⃣ If profile not exists → create it
+    if (!profile) {
+      await supabase.from('profiles').insert({
+        id: user.id,
+        name: '',
+        domain: '',
+        is_active: true,
+      })
+    }
+
+    // 4️⃣ Re-fetch profile after ensure creation
+    const { data: finalProfile } = await supabase
       .from('profiles')
       .select('is_active')
       .eq('id', user.id)
       .single()
 
-    if (profileError) {
-      alert('Profile not found')
-      return
-    }
-
     // ❌ Account disabled
-    if (!profile.is_active) {
+    if (!finalProfile.is_active) {
       await supabase.auth.signOut()
       alert('Your account has been disabled')
       return
@@ -46,9 +56,7 @@ export default function Login() {
 
     // ✅ Everything OK
     alert('Login successful')
-    // later: navigate to dashboard
     navigate('/dashboard')
-
   }
 
   return (
