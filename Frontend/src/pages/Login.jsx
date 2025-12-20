@@ -49,12 +49,16 @@ export default function Login() {
       .eq('id', user.id)
       .single()
 
-    // ❌ Safe check (no crash)
-    if (!finalProfile || !finalProfile.is_active) {
-      await supabase.auth.signOut()
-      alert('Account disabled or profile missing')
-      return
-    }
+      if (!finalProfile) {
+        alert('Profile creation failed. Please login again.')
+        return
+      }
+      
+      if (!finalProfile.is_active) {
+        await supabase.auth.signOut()
+        alert('Your account has been disabled')
+        return
+      }
 
     // ✅ Success
     alert('Login successful')
