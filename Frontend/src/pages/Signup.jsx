@@ -6,7 +6,7 @@ export default function Signup() {
   const [password, setPassword] = useState('')
 
   const handleSignup = async () => {
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
     })
@@ -16,20 +16,23 @@ export default function Signup() {
       return
     }
 
-    if (data?.user) {
-      await supabase.from('profiles').insert({
-        id: data.user.id,
-        name: '',
-        domain: '',
-        is_active: true,
-      })
-    }
+    // ✅ IMPORTANT: DO NOT insert into profiles here
+    alert('Signup successful. Please check your email and login.')
   }
 
   return (
     <>
-      <input onChange={e => setEmail(e.target.value)} />
-      <input type="password" onChange={e => setPassword(e.target.value)} />
+      <input
+        placeholder="Email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+      />
       <button onClick={handleSignup}>Sign Up</button>
     </>
   )
