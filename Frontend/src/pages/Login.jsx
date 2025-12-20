@@ -8,7 +8,7 @@ export default function Login() {
   const navigate = useNavigate()
 
   const handleLogin = async () => {
-    // 1️⃣ Try login
+    // 1️⃣ Login
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -21,14 +21,14 @@ export default function Login() {
 
     const user = data.user
 
-    // 2️⃣ Try to fetch profile safely
+    // 2️⃣ Check profile
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_active')
       .eq('id', user.id)
       .maybeSingle()
 
-    // 3️⃣ If profile not exists → create it (LOG ERROR)
+    // 3️⃣ Create profile if missing
     if (!profile) {
       const { error: insertError } = await supabase
         .from('profiles')
@@ -39,29 +39,32 @@ export default function Login() {
           is_active: true,
         })
 
-      console.log('INSERT PROFILE ERROR:', insertError)
+      if (insertError) {
+        console.error('Profile insert failed:', insertError)
+        alert('Profile creation failed. Please try login again.')
+        return
+      }
     }
 
-    // 4️⃣ Re-fetch profile
-    const { data: finalProfile } = await supabase
+    // 4️⃣ Fetch profile again
+    const { data: finalProfile, error: fetchError } = await supabase
       .from('profiles')
       .select('is_active')
       .eq('id', user.id)
       .single()
 
-      if (!finalProfile) {
-        alert('Profile creation failed. Please login again.')
-        return
-      }
-      
-      if (!finalProfile.is_active) {
-        await supabase.auth.signOut()
-        alert('Your account has been disabled')
-        return
-      }
+    if (fetchError || !finalProfile) {
+      alert('Profile not available. Please try again.')
+      return
+    }
+
+    if (!finalProfile.is_active) {
+      await supabase.auth.signOut()
+      alert('Your account has been disabled')
+      return
+    }
 
     // ✅ Success
-    alert('Login successful')
     navigate('/dashboard')
   }
 
