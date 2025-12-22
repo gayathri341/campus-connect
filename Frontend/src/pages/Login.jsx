@@ -20,29 +20,22 @@ export default function Login() {
 
     const user = data.user
 
-    // check profile
     const { data: profile } = await supabase
       .from('profiles')
-      .select('*')
+      .select('is_verified')
       .eq('id', user.id)
-      .maybeSingle()
+      .single()
 
-    // create if missing
-    if (!profile) {
-      await supabase.from('profiles').insert({
-        id: user.id,
-        name: '',
-        domain: '',
-        is_active: true,
-      })
+    if (!profile.is_verified) {
+      navigate('/verify')
+    } else {
+      navigate('/dashboard')
     }
-
-    navigate('/dashboard')
   }
 
   return (
     <>
-      <h2>Login</h2>
+      <h3>Login</h3>
       <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
       <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
       <button onClick={handleLogin}>Login</button>
