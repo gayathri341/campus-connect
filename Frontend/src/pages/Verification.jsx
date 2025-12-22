@@ -44,7 +44,7 @@ export default function Verification() {
   
     const { error: dbError } = await supabase
       .from('verification_documents')
-      .upsert({
+      .insert({
         user_id: user.id,
         document_path: filePath, // 👈 NOT public URL
         status: 'pending',
