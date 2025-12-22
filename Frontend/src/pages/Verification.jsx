@@ -25,25 +25,39 @@ export default function Verification() {
 
   const uploadDoc = async () => {
     if (!file || !user) return
-
-    const path = `${user.id}/proof.pdf`
-
-    await supabase.storage
+  
+    const filePath = `${user.id}/proof.pdf`
+  
+    const { error: uploadError } = await supabase.storage
       .from('verification-docs')
-      .upload(path, file, { upsert: true })
-
-    const { data } = supabase.storage
-      .from('verification-docs')
-      .getPublicUrl(path)
-
-    await supabase.from('verification_documents').upsert({
-      user_id: user.id,
-      document_url: data.publicUrl,
-      status: 'pending',
-    })
-
+      .upload(filePath, file, {
+        upsert: true,
+        contentType: file.type,
+      })
+  
+    console.log('UPLOAD ERROR:', uploadError)
+  
+    if (uploadError) {
+      alert('Upload failed')
+      return
+    }
+  
+    const { error: dbError } = await supabase
+      .from('verification_documents')
+      .upsert({
+        user_id: user.id,
+        document_path: filePath, // 👈 NOT public URL
+        status: 'pending',
+      })
+  
+    if (dbError) {
+      alert('DB error')
+      return
+    }
+  
     alert('Document uploaded. Verification pending.')
   }
+  
 
   return (
     <div>
