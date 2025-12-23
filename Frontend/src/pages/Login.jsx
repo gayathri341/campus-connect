@@ -20,26 +20,26 @@ export default function Login() {
 
     const user = data.user
 
-    const { data: profile } = await supabase
-    .from('profiles')
-    .select('is_verified')
-    .eq('id', user.id)
-    .maybeSingle()
-  
-  if (!profile) {
-    // profile row missing → send to verification
-    navigate('/verification')
-    return
-  }
-  
-  if (!profile.is_verified) {
-    navigate('/verification')
-    return
-  }
-  
-  // verified user
-  navigate('/dashboard')
-  
+   const { data: profile } = await supabase
+  .from('profiles')
+  .select('is_verified')
+  .eq('id', user.id)
+  .maybeSingle()
+
+if (!profile) {
+  // profile row missing → send to verification
+  navigate('/verify')
+  return
+}
+
+if (!profile.is_verified) {
+  navigate('/verify')
+  return
+}
+
+// verified user
+navigate('/dashboard')
+
   }
 
   return (

@@ -58,6 +58,7 @@ export default function Verification() {
     alert('Document uploaded. Verification pending.')
   }
   
+  
 
   return (
     <div>
