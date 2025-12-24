@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../supabase'
 import { useNavigate } from 'react-router-dom'
+import '../styles/auth.css'
 
 export default function Signup() {
   const [email, setEmail] = useState('')
@@ -8,7 +9,7 @@ export default function Signup() {
   const navigate = useNavigate()
 
   const handleSignup = async () => {
-    const { error } = await supabase.auth.signUp({
+    const { data,error } = await supabase.auth.signUp({
       email,
       password,
     })
@@ -17,6 +18,13 @@ export default function Signup() {
       alert(error.message)
       return
     }
+     // 🔥 CREATE PROFILE ROW IMMEDIATELY
+  if (data?.user) {
+    await supabase.from('profiles').insert({
+      id: data.user.id,
+      is_verified: false,
+    })
+  }
 
     alert('Signup success. Please login.')
     navigate('/login')

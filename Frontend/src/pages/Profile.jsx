@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
+import '../styles/profile.css'
+
 
 export default function Profile() {
   const [profile, setProfile] = useState(null)

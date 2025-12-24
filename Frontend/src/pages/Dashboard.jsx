@@ -1,5 +1,6 @@
 import { supabase } from '../supabase'
 import { useNavigate, Link } from 'react-router-dom'
+import '../styles/dashboard.css'
 
 export default function Dashboard() {
   const navigate = useNavigate()
