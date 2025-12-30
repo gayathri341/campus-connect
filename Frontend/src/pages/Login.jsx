@@ -45,11 +45,34 @@ navigate('/dashboard')
   }
 
   return (
-    <>
-      <h3>Login</h3>
-      <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
-      <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
-      <button onClick={handleLogin}>Login</button>
-    </>
+    <div className="auth-wrapper">
+      <div className="auth-card">
+        <h2>Welcome Back 👋</h2>
+        <p className="auth-subtitle">Login to continue</p>
+  
+        <input
+          className="input"
+          type="email"
+          placeholder="Email address"
+          onChange={e => setEmail(e.target.value)}
+        />
+  
+        <input
+          className="input"
+          type="password"
+          placeholder="Password"
+          onChange={e => setPassword(e.target.value)}
+        />
+  
+        <button className="btn full-width" onClick={handleLogin}>
+          Login
+        </button>
+  
+        <p className="auth-footer">
+          New user? <span onClick={() => navigate('/signup')}>Create account</span>
+        </p>
+      </div>
+    </div>
   )
+  
 }

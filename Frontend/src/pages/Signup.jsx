@@ -31,11 +31,35 @@ export default function Signup() {
   }
 
   return (
-    <>
-      <h2>Signup</h2>
-      <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
-      <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
-      <button onClick={handleSignup}>Signup</button>
-    </>
+    <div className="auth-wrapper">
+      <div className="auth-card">
+        <h2>Create Account 🚀</h2>
+        <p className="auth-subtitle">Join Campus Connect</p>
+  
+        <input
+          className="input"
+          type="email"
+          placeholder="Email address"
+          onChange={e => setEmail(e.target.value)}
+        />
+  
+        <input
+          className="input"
+          type="password"
+          placeholder="Password"
+          onChange={e => setPassword(e.target.value)}
+        />
+  
+        <button className="btn full-width" onClick={handleSignup}>
+          Sign Up
+        </button>
+  
+        <p className="auth-footer">
+          Already have an account?{' '}
+          <span onClick={() => navigate('/login')}>Login</span>
+        </p>
+      </div>
+    </div>
   )
+  
 }

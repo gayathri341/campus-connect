@@ -1,0 +1,93 @@
+/* auth.css */
+
+/* Full page center */
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f5f7fb;
+  padding: 1rem;
+}
+
+/* Card */
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Headings */
+.auth-card h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #111827;
+}
+
+.auth-subtitle {
+  margin: 0.4rem 0 1.6rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  padding: 0.65rem 0.7rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 0.9rem;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #4f46e5;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.65rem 1.2rem;
+  border-radius: 6px;
+  border: none;
+  background: #4f46e5;
+  color: #ffffff;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Footer text */
+.auth-footer {
+  margin-top: 1.4rem;
+  font-size: 0.85rem;
+  color: #374151;
+}
+
+.auth-footer span {
+  color: #4f46e5;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.auth-footer span:hover {
+  text-decoration: underline;
+}
+
+/* Laptop refinement (15.6 inch focus) */
+@media (min-width: 1024px) {
+  .auth-card {
+    padding: 2.5rem;
+  }
+}
