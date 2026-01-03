@@ -1,0 +1,44 @@
+/* common.css */
+:root {
+    --primary: #4f46e5;
+    --dark: #111827;
+    --light-bg: #f5f7fb;
+    --card-bg: #ffffff;
+    --text: #1f2937;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    padding:0;
+    overflow-y: auto;
+    font-family: system-ui, sans-serif;
+    background: var(--light-bg);
+    color: var(--text);
+  }
+  
+  /* reusable UI only */
+  .btn {
+    padding: 0.6rem 1.2rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .btn:hover {
+    opacity: 0.9;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 0.6rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  

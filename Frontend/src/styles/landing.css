@@ -1,0 +1,125 @@
+/* landing.css */
+
+.landing-container {
+    min-height: 100vh;
+    background: radial-gradient(
+        circle at right,
+        rgba(0, 180, 170, 0.25),
+        transparent 40%
+      ),
+      linear-gradient(135deg, #e9f8f7, #f6ffff);
+    padding: 2rem 3rem;
+    font-family: system-ui, sans-serif;
+  }
+  
+  /* Header */
+  .landing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  
+  .logo span {
+    margin-left: 0.4rem;
+  }
+  
+  .nav-actions {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .link-btn {
+    background: none;
+    border: none;
+    font-size: 0.95rem;
+    cursor: pointer;
+    color: #0f172a;
+  }
+  
+  .primary-btn {
+    background: linear-gradient(135deg, #0ea5a4, #22c1c3);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0, 180, 170, 0.35);
+  }
+  
+  .primary-btn.large {
+    padding: 0.9rem 1.8rem;
+    font-size: 1.05rem;
+  }
+  
+  .primary-btn:hover {
+    opacity: 0.95;
+  }
+  
+  /* Hero */
+  .hero {
+    margin-top: 6rem;
+    max-width: 720px;
+  }
+  
+  .badge {
+    display: inline-block;
+    background: rgba(14, 165, 164, 0.15);
+    color: #0ea5a4;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    margin-bottom: 1.6rem;
+  }
+  
+  .hero h1 {
+    font-size: 3.2rem;
+    line-height: 1.2;
+    color: #0f172a;
+  }
+  
+  .hero h1 span {
+    color: #0ea5a4;
+  }
+  
+  .subtitle {
+    margin-top: 1.2rem;
+    font-size: 1.05rem;
+    color: #475569;
+    max-width: 600px;
+  }
+  
+  .cta-buttons {
+    margin-top: 2.4rem;
+    display: flex;
+    gap: 1.2rem;
+  }
+  
+  .secondary-btn {
+    background: transparent;
+    border: 2px solid #0ea5a4;
+    color: #0ea5a4;
+    padding: 0.8rem 1.6rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .secondary-btn:hover {
+    background: rgba(14, 165, 164, 0.08);
+  }
+  
+  /* Laptop refinement */
+  @media (min-width: 1024px) {
+    .hero h1 {
+      font-size: 3.6rem;
+    }
+  }
+  
+  
