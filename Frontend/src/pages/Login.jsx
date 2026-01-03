@@ -45,34 +45,66 @@ navigate('/dashboard')
   }
 
   return (
-    <div className="auth-wrapper">
-      <div className="auth-card">
-        <h2>Welcome Back 👋</h2>
-        <p className="auth-subtitle">Login to continue</p>
+    <div className="auth-layout">
+      {/* LEFT SIDE */}
+      <div className="auth-left">
+        <h1 className="brand-title">CampusConnect</h1>
+        <p className="brand-subtitle">Your professional network starts here</p>
   
-        <input
-          className="input"
-          type="email"
-          placeholder="Email address"
-          onChange={e => setEmail(e.target.value)}
-        />
+        <div className="feature-card">
+          <h4>Connect</h4>
+          <p>Network with students & professionals</p>
+        </div>
   
-        <input
-          className="input"
-          type="password"
-          placeholder="Password"
-          onChange={e => setPassword(e.target.value)}
-        />
+        <div className="feature-card">
+          <h4>Chat</h4>
+          <p>Real-time secure messaging</p>
+        </div>
   
-        <button className="btn full-width" onClick={handleLogin}>
-          Login
-        </button>
+        <div className="feature-card">
+          <h4>Resources</h4>
+          <p>Access placement materials</p>
+        </div>
   
-        <p className="auth-footer">
-          New user? <span onClick={() => navigate('/signup')}>Create account</span>
-        </p>
+        <p className="brand-footer">Built for students, by students</p>
+      </div>
+  
+      {/* RIGHT SIDE */}
+      <div className="auth-right">
+        <div className="auth-card">
+          <h2>Welcome back</h2>
+          <p className="auth-subtitle">
+            Enter your credentials to access your account
+          </p>
+  
+          <label>Email</label>
+          <input
+            className="input"
+            type="email"
+            placeholder="you@example.com"
+            onChange={e => setEmail(e.target.value)}
+          />
+  
+          <label>Password</label>
+          <input
+            className="input"
+            type="password"
+            placeholder="••••••••"
+            onChange={e => setPassword(e.target.value)}
+          />
+  
+          <button className="btn full-width" onClick={handleLogin}>
+            Sign In →
+          </button>
+  
+          <p className="auth-footer">
+            Don't have an account?{' '}
+            <span onClick={() => navigate('/signup')}>Sign up</span>
+          </p>
+        </div>
       </div>
     </div>
   )
+  
   
 }
