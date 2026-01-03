@@ -11,47 +11,121 @@ export default function Landing() {
         <div className="logo">
           🎓 <span>CampusConnect</span>
         </div>
-
+  
         <div className="nav-actions">
-          <button className="link-btn" onClick={() => navigate('/login')}>
+          <button
+            className="link-btn"
+            onClick={() => navigate("/login")}
+          >
             Log In
           </button>
-          <button className="primary-btn" onClick={() => navigate('/login')}>
+  
+          <button
+            className="primary-btn"
+            onClick={() => navigate("/login")}
+          >
             Get Started →
           </button>
         </div>
       </header>
-
+  
       {/* Hero Section */}
-      <main className="hero">
-        <span className="badge">⚡ Built for students, by students</span>
-
+      <section className="hero">
+        <span className="badge">
+          ⚡ Built for students, by students
+        </span>
+  
         <h1>
           Your Professional Network <br />
           <span>Starts Here</span>
         </h1>
-
+  
         <p className="subtitle">
           Connect with fellow students, share placement resources,
-          and build meaningful professional relationships that last a lifetime.
+          and build meaningful professional relationships that
+          last a lifetime.
         </p>
-
+  
         <div className="cta-buttons">
           <button
             className="primary-btn large"
-            onClick={() => navigate('/login')}
+            onClick={() => navigate("/login")}
           >
             Join CampusConnect →
           </button>
-
+  
           <button
             className="secondary-btn"
-            onClick={() => navigate('/signup')}
+            onClick={() => navigate("/signup")}
           >
             Learn More
           </button>
         </div>
-      </main>
+      </section>
+  
+      {/* Features Section */}
+      <section className="features-section">
+        <div className="features-header">
+          <h2>Everything you need to succeed</h2>
+          <p>
+            From networking to resources, we've got all the tools
+            to help you navigate your academic and professional journey.
+          </p>
+        </div>
+  
+        <div className="features-grid">
+          <div className="feature-card">
+            <h3>Professional Networking</h3>
+            <p>
+              Connect with students and early professionals from various domains.
+            </p>
+          </div>
+  
+          <div className="feature-card">
+            <h3>Secure Messaging</h3>
+            <p>
+              Real-time chat with file sharing for connected users.
+            </p>
+          </div>
+  
+          <div className="feature-card">
+            <h3>Placement Resources</h3>
+            <p>
+              Access company-wise placement papers and interview experiences.
+            </p>
+          </div>
+  
+          <div className="feature-card">
+            <h3>Safe Community</h3>
+            <p>
+              Report system to maintain a respectful and professional environment.
+            </p>
+          </div>
+        </div>
+      </section>
+  
+      {/* CTA Section */}
+      <section className="cta-section">
+        <h2>Ready to get started?</h2>
+        <p>
+          Join thousands of students who are already building their
+          professional network on CampusConnect.
+        </p>
+  
+        <button
+          className="primary-btn large"
+          onClick={() => navigate("/signup")}
+        >
+          Create Free Account →
+        </button>
+      </section>
+  
+      {/* Footer */}
+      <footer className="landing-footer">
+        © 2026 CampusConnect. Built with ❤️ for students.
+      </footer>
     </div>
-  )
+  );
+  
+
 }
