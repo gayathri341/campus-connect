@@ -11,57 +11,85 @@ export default function Landing() {
         <div className="logo">
           🎓 <span>CampusConnect</span>
         </div>
+  {/* 🔥 NEW NAV LINKS (red marked) */}
+     <nav className="nav-links">
+        <span>How it Works</span>
+        <span>Features</span>
+        <span>Why Us</span>
+      </nav>
+
+      <div className="nav-actions">
+        <button className="link-btn" onClick={() => navigate('/login')}>
+          Log In
+        </button>
+        <button className="primary-btn" onClick={() => navigate('/login')}>
+          Get Started →
+        </button>
+      </div>
+    </header>
   
-        <div className="nav-actions">
-          <button
-            className="link-btn"
-            onClick={() => navigate("/login")}
-          >
-            Log In
-          </button>
-  
-          <button
-            className="primary-btn"
-            onClick={() => navigate("/login")}
-          >
-            Get Started →
-          </button>
-        </div>
-      </header>
-  
-      {/* Hero Section */}
-      <section className="hero">
-        <span className="badge">
-          ⚡ Built for students, by students
+       {/* Hero Section */}
+    <section className="hero hero-layout">
+      {/* LEFT SIDE (unchanged content) */}
+      <div className="hero-left">
+        <span className="badge verified-badge">
+          ✅ College-only verified platform
         </span>
-  
+
         <h1>
           Your Professional Network <br />
           <span>Starts Here</span>
         </h1>
-  
+
         <p className="subtitle">
-          Connect with fellow students, share placement resources,
-          and build meaningful professional relationships that
-          last a lifetime.
+          Connect with fellow students, share placement resources, and build
+          meaningful professional relationships that last a lifetime.
         </p>
-  
+
         <div className="cta-buttons">
           <button
             className="primary-btn large"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate('/login')}
           >
             Join CampusConnect →
           </button>
-  
+
           <button
             className="secondary-btn"
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate('/signup')}
           >
             Learn More
           </button>
         </div>
-      </section>
+      </div>
+
+      {/* 🔥 RIGHT SIDE PREVIEW (red marked card area) */}
+      <div className="hero-right">
+        <div className="profile-card">
+          <div className="profile-header">
+            <div className="avatar">AK</div>
+            <div>
+              <h4>Arun Kumar</h4>
+              <p>Java Backend • Batch 2024</p>
+            </div>
+            <span className="verified-tag">Verified</span>
+          </div>
+
+          <div className="session-card">
+            <span className="dot" /> Upcoming Session
+            <h5>Resume Review</h5>
+            <p>Tomorrow, 4:00 PM</p>
+          </div>
+        </div>
+
+        <div className="filters-card">
+          <h5>Filters</h5>
+          <p><strong>Domain:</strong> Backend</p>
+          <p><strong>Batch:</strong> 2024</p>
+          <p><strong>Company:</strong> Product</p>
+        </div>
+      </div>
+    </section>
   
       {/* Features Section */}
       <section className="features-section">

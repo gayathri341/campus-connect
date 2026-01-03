@@ -1,0 +1,25 @@
+/* dashboard.css */
+.dashboard-container {
+    padding: 1.5rem;
+  }
+  
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+  
+  /* Laptop (15.6 inch focus) */
+  @media (min-width: 1024px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .dashboard-card {
+    background: var(--card-bg);
+    padding: 1.2rem;
+    border-radius: 10px;
+    min-height: 140px;
+  }
+  

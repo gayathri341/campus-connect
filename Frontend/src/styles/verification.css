@@ -1,0 +1,29 @@
+/* verification.css */
+.verify-wrapper {
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .verify-card {
+    width: 90%;
+    max-width: 500px;
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+  }
+  
+  .verify-status {
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+  
+  /* Laptop fine-tuning */
+  @media (min-width: 1024px) {
+    .verify-card {
+      padding: 2.5rem;
+    }
+  }
+  
