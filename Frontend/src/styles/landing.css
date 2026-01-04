@@ -261,7 +261,8 @@
 .verified-badge {
   background: rgba(14, 165, 164, 0.15);
   color: #0ea5a4;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0rem;
+ 
 }
 
 /* ===== HERO RIGHT PREVIEW ===== */
