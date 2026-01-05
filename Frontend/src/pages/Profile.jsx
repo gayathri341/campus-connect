@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
+import Navbar from '../components/Navbar'
 
 export default function Profile() {
   const [profile, setProfile] = useState(null)
@@ -91,51 +92,56 @@ export default function Profile() {
   if (!profile) return <p>Loading profile...</p>
 
   return (
-    <div>
-      <h2>Profile</h2>
-
-      {/* Avatar */}
-      {profile.avatar_url && (
-        <img
-          src={profile.avatar_url}
-          alt="Profile"
-          width="120"
-          style={{ display: 'block', marginBottom: '10px' }}
-        />
-      )}
-
-      <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-      <button onClick={uploadAvatar}>Upload DP</button>
-
-      <hr />
-
-      {/* Name */}
+    <>
+      <Navbar active="profile" />
+  
       <div>
-        <label>Name:</label><br />
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Enter your name"
-        />
+        <h2>Profile</h2>
+  
+        {/* Avatar */}
+        {profile.avatar_url && (
+          <img
+            src={profile.avatar_url}
+            alt="Profile"
+            width="120"
+            style={{ display: 'block', marginBottom: '10px' }}
+          />
+        )}
+  
+        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+        <button onClick={uploadAvatar}>Upload DP</button>
+  
+        <hr />
+  
+        {/* Name */}
+        <div>
+          <label>Name:</label><br />
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter your name"
+          />
+        </div>
+  
+        <br />
+  
+        {/* Domain */}
+        <div>
+          <label>Domain:</label><br />
+          <input
+            value={domain}
+            onChange={(e) => setDomain(e.target.value)}
+            placeholder="Enter your domain"
+          />
+        </div>
+  
+        <br />
+  
+        <button onClick={saveProfile} disabled={saving}>
+          {saving ? 'Saving...' : 'Save Profile'}
+        </button>
       </div>
-
-      <br />
-
-      {/* Domain */}
-      <div>
-        <label>Domain:</label><br />
-        <input
-          value={domain}
-          onChange={(e) => setDomain(e.target.value)}
-          placeholder="Enter your domain"
-        />
-      </div>
-
-      <br />
-
-      <button onClick={saveProfile} disabled={saving}>
-        {saving ? 'Saving...' : 'Save Profile'}
-      </button>
-    </div>
+    </>
   )
+  
 }

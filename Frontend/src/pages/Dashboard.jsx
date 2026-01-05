@@ -1,26 +1,48 @@
-import { supabase } from '../supabase'
-import { useNavigate, Link } from 'react-router-dom'
+import Navbar from '../components/Navbar'
 import '../styles/dashboard.css'
 
 export default function Dashboard() {
-  const navigate = useNavigate()
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    navigate('/login')
-  }
-
   return (
     <>
-      <h2>Dashboard 🎉</h2>
+      <Navbar />
 
-      <Link to="/profile">
-        <button>Go to Profile</button>
-      </Link>
+      <div className="dashboard-container">
+        <div className="stats-row">
+          <div className="stat-card">
+            <p className="stat-label">Connections</p>
+            <h2>0</h2>
+          </div>
 
-      <br /><br />
+          <div className="stat-card">
+            <p className="stat-label">Resources</p>
+            <h2>Coming Soon</h2>
+          </div>
+        </div>
 
-      <button onClick={handleLogout}>Logout</button>
+        <div className="discover-card">
+          <h3>Discover People</h3>
+
+          <input
+            className="search-input"
+            placeholder="Search by name, college, or skills..."
+          />
+
+          <div className="filter-row">
+            {['All', 'IT', 'CSE', 'ECE', 'EEE', 'MECH', 'CIVIL', 'CHEM', 'BIO', 'OTHER'].map(
+              (item) => (
+                <button
+                  key={item}
+                  className={`filter-btn ${item === 'All' ? 'active' : ''}`}
+                >
+                  {item}
+                </button>
+              )
+            )}
+          </div>
+
+         
+        </div>
+      </div>
     </>
   )
 }

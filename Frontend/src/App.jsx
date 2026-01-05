@@ -7,6 +7,11 @@ import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
 import Verification from './pages/Verification'
 import ProtectedRoute from './components/ProtectedRoute'
+import Messages from './pages/Messages'
+import Connections from './pages/Connections'
+import Resources from './pages/Resources'
+import Notifications from './pages/Notifications'
+
 
 export default function App() {
   return (
@@ -46,6 +51,45 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/messages"
+        element={
+          <ProtectedRoute>
+            <Messages />
+          </ProtectedRoute>
+        }
+      />
+
+        <Route
+         path="/connections"
+        element={
+          <ProtectedRoute>
+            <Connections />
+         </ProtectedRoute>
+        }
+      />
+
+        <Route
+          path="/resources"
+          element={
+          <ProtectedRoute>
+            <Resources />
+          </ProtectedRoute>
+        }
+      />
+
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Notifications />
+            </ProtectedRoute>
+          }
+        />
+
     </Routes>
+
+    
   )
 }

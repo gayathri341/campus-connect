@@ -1,0 +1,64 @@
+.app-navbar {
+    height: 64px;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+  }
+  
+  .brand {
+    font-weight: 700;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  
+  .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 1.2rem;
+  }
+  
+  .nav-item {
+    text-decoration: none;
+    color: #475569;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    font-size: 0.95rem;
+  }
+  
+  .nav-item.active {
+    background: rgba(14, 165, 164, 0.12);
+    color: #0ea5a4;
+    font-weight: 600;
+  }
+  
+  .nav-right {
+    display: flex;
+    gap: 0.8rem;
+  }
+  
+  .icon-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.4rem;
+  }
+  
+  .icon-btn:hover {
+    opacity: 0.7;
+  }
+  
+  .logout {
+    color: #ef4444;
+  }
+  
