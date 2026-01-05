@@ -68,7 +68,7 @@ export default function Landing() {
         <div className="profile-card">
           <div className="profile-header">
             <div className="avatar">AK</div>
-            <div>
+            <div className= "arun">
               <h4>Arun Kumar</h4>
               <p>Java Backend • Batch 2024</p>
             </div>
@@ -102,28 +102,28 @@ export default function Landing() {
         </div>
   
         <div className="features-grid">
-          <div className="feature-card">
+          <div className="features-card">
             <h3>Professional Networking</h3>
             <p>
               Connect with students and early professionals from various domains.
             </p>
           </div>
   
-          <div className="feature-card">
+          <div className="features-card">
             <h3>Secure Messaging</h3>
             <p>
               Real-time chat with file sharing for connected users.
             </p>
           </div>
   
-          <div className="feature-card">
+          <div className="features-card">
             <h3>Placement Resources</h3>
             <p>
               Access company-wise placement papers and interview experiences.
             </p>
           </div>
   
-          <div className="feature-card">
+          <div className="features-card">
             <h3>Safe Community</h3>
             <p>
               Report system to maintain a respectful and professional environment.
