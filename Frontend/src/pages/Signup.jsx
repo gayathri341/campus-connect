@@ -42,7 +42,7 @@ export default function Signup() {
     <div className="auth-layout">
       {/* LEFT SIDE */}
       <div className="auth-left">
-        <h1 className="brand-title">CampusConnect</h1>
+      <h1 className="brand-title clickable" onClick={() => navigate('/')}> CampusConnect </h1>
         <p className="brand-subtitle">
           Your professional network starts here
         </p>
@@ -100,7 +100,7 @@ export default function Signup() {
             onChange={e => setPassword(e.target.value)}
           />
 
-          <button className="btn full-width" onClick={handleSignup}>
+          <button className="create" onClick={handleSignup}>
             Create Account →
           </button>
 

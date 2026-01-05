@@ -16,10 +16,21 @@
   justify-content: center;
 }
 
-.brand-title {
+.brand-title{
   font-size: 2.4rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.brand-title:hover {
+  color: #ffffff;
+  text-shadow:
+    0 0 0.3px #ffffff,
+   
+    0 0 20px rgba(255, 255, 255, 0.9),
+    0 0 40px rgba(255, 255, 255, 0.7);
 }
 
 .brand-subtitle {
@@ -44,6 +55,7 @@
   margin: 0.4rem 0 0;
   font-size: 0.9rem;
   opacity: 0.9;
+  color:#ffffff;
 }
 
 .brand-footer {
@@ -106,25 +118,23 @@
 }
 
 /* BUTTON */
-.btn {
+.create {
   padding: 0.75rem;
   border-radius: 10px;
   border: none;
-  background: linear-gradient(135deg, #14b8a6, #22c1c3);
+  background: linear-gradient(135deg, #14b8a6, #09bca7);
   color: #ffffff;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   margin-top: 0.5rem;
+  width: 100%;
 }
 
-.btn:hover {
+.create:hover {
   opacity: 0.95;
 }
 
-.full-width {
-  width: 100%;
-}
 
 /* FOOTER */
 .auth-footer {
@@ -174,3 +184,4 @@
 .input.with-icon {
   padding-left: 2.2rem;
 }
+

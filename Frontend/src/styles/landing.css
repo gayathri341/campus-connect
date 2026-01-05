@@ -44,7 +44,7 @@
   
   .primary-btn {
     background: linear-gradient(135deg, #0ea5a4, #22c1c3);
-    color: white;
+    color: rgb(255, 255, 255);
     border: none;
     padding: 0.6rem 1.2rem;
     border-radius: 999px;

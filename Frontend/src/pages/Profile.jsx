@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
-import '../styles/profile.css'
-
 
 export default function Profile() {
   const [profile, setProfile] = useState(null)
@@ -93,78 +91,51 @@ export default function Profile() {
   if (!profile) return <p>Loading profile...</p>
 
   return (
-  <div className="profile-wrapper">
-    <div className="profile-card">
-      <h2 className="profile-title">Your Profile</h2>
-      <p className="profile-subtitle">
-        Manage your personal information
-      </p>
+    <div>
+      <h2>Profile</h2>
 
-      {/* Avatar Section */}
-      <div className="profile-avatar-section">
-        {profile.avatar_url ? (
-          <img
-            src={profile.avatar_url}
-            alt="Profile"
-            className="profile-avatar"
-           
-          />
-        ) : (
-          <div className="profile-avatar placeholder">
-            No Image
-          </div>
-        )}
-
-        <input
-          type="file"
-          id="avatarUpload"
-          hidden
-          onChange={(e) => setFile(e.target.files[0])}
+      {/* Avatar */}
+      {profile.avatar_url && (
+        <img
+          src={profile.avatar_url}
+          alt="Profile"
+          width="120"
+          style={{ display: 'block', marginBottom: '10px' }}
         />
+      )}
 
-        <label htmlFor="avatarUpload" className="btn secondary">
-          Change Profile Picture
-        </label>
-
-        <button className="btn" onClick={uploadAvatar}>
-          Upload
-        </button>
-      </div>
+      <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+      <button onClick={uploadAvatar}>Upload DP</button>
 
       <hr />
 
-      {/* Profile Form */}
-      <div className="profile-form">
-        <div className="form-group">
-          <label>Name</label>
-          <input
-            className="input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter your name"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Domain</label>
-          <input
-            className="input"
-            value={domain}
-            onChange={(e) => setDomain(e.target.value)}
-            placeholder="Enter your domain (e.g. Web, AI, Data)"
-          />
-        </div>
-
-        <button
-          className="btn full-width"
-          onClick={saveProfile}
-          disabled={saving}
-        >
-          {saving ? 'Saving...' : 'Save Profile'}
-        </button>
+      {/* Name */}
+      <div>
+        <label>Name:</label><br />
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter your name"
+        />
       </div>
-    </div>
-  </div>
-)
 
+      <br />
+
+      {/* Domain */}
+      <div>
+        <label>Domain:</label><br />
+        <input
+          value={domain}
+          onChange={(e) => setDomain(e.target.value)}
+          placeholder="Enter your domain"
+        />
+      </div>
+
+      <br />
+
+      <button onClick={saveProfile} disabled={saving}>
+        {saving ? 'Saving...' : 'Save Profile'}
+      </button>
+    </div>
+  )
 }
