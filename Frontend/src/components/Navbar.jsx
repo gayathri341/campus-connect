@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import '../styles/navbar.css'
+import logo from '../assets/logo.svg'
 
 export default function Navbar() {
   const navigate = useNavigate()
@@ -14,7 +15,8 @@ export default function Navbar() {
     <header className="app-navbar">
       <div className="nav-left">
         <div className="brand">
-          🎓 <span>CampusConnect</span>
+           <img src={logo} alt="CampusConnect" className="brand-img" />
+          <span>CampusConnect</span>
         </div>
 
         <nav className="nav-links">

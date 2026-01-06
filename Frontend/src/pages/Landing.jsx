@@ -1,15 +1,21 @@
 import { useNavigate } from 'react-router-dom'
 import '../styles/landing.css'
+import logo from '../assets/logo.svg'
+
 
 export default function Landing() {
   const navigate = useNavigate()
 
   return (
+    
     <div className="landing-container">
       {/* Top Navbar */}
+   
       <header className="landing-header">
+        
         <div className="logo">
-          🎓 <span>CampusConnect</span>
+        <img src={logo} alt="CampusConnect" className="logo-img" />
+          <span>CampusConnect</span>
         </div>
   {/* 🔥 NEW NAV LINKS (red marked) */}
      <nav className="nav-links">
@@ -27,6 +33,7 @@ export default function Landing() {
         </button>
       </div>
     </header>
+  
   
        {/* Hero Section */}
     <section className="hero hero-layout">
@@ -65,6 +72,43 @@ export default function Landing() {
 
       {/* 🔥 RIGHT SIDE PREVIEW (red marked card area) */}
       <div className="hero-right">
+     {/*Profile card 1*/}
+      <div className="profile-card1">
+          <div className="profile-header1">
+            <div className="avatar1">AK</div>
+            <div className= "arun1">
+              <h4>Shalini</h4>
+              <p>Oracle Developer • Batch 2023</p>
+            </div>
+            <span className="verified-tag1">Verified</span>
+          </div>
+
+          <div className="session-card1">
+            <span className="dot1" /> Upcoming Session
+            <h5>Resume Review</h5>
+            <p>Tomorrow, 4:00 PM</p>
+          </div>
+        </div>
+
+       {/*Profile card 2*/}
+       <div className="profile-card2">
+          <div className="profile-header2">
+            <div className="avatar2">AK</div>
+            <div className= "arun2">
+              <h4>Anthony</h4>
+              <p>R & D Engineer• Batch 2023</p>
+            </div>
+            <span className="verified-tag2">Verified</span>
+          </div>
+
+          <div className="session-card2">
+            <span className="dot2" /> Upcoming Session
+            <h5>Resume Review</h5>
+            <p>Tomorrow, 4:00 PM</p>
+          </div>
+        </div>
+
+       {/*Profile card */}
         <div className="profile-card">
           <div className="profile-header">
             <div className="avatar">AK</div>
@@ -81,6 +125,7 @@ export default function Landing() {
             <p>Tomorrow, 4:00 PM</p>
           </div>
         </div>
+        
 
         <div className="filters-card">
           <h5>Filters</h5>
