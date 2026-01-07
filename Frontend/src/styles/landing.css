@@ -459,16 +459,30 @@
 
 .profile-card1 {
   background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 1.8rem 2rem;
-  box-shadow: 0 20px 40px rgba(234, 0, 0, 0.08);
-  min-width: 450px;     
-  max-width: 550px; 
-  position: relative;    
-  z-index: 1;             /* 🔽 BACK */
+  min-width: 450px;
+  max-width: 550px;
+
+  position: relative;
+  z-index: 1; /* stays behind Arun */
+
   transform: translateY(90px) translateX(-100px);
   opacity: 0.95;
+
+  backface-visibility: hidden;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* Hover effect – NO layer change */
+.profile-card1:hover {
+  transform: translateY(90px) translateX(-100px) scale(1.03);
+  box-shadow:
+    0 16px 32px rgba(14, 165, 164, 0.18),
+    0 6px 12px rgba(0, 0, 0, 0.06);
 }
 
 
@@ -551,20 +565,35 @@
 
 /* ===== PRFOILE CARD2  ===== */
 
-
 .profile-card2 {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 1.8rem 2rem;
-  box-shadow: 0 20px 40px rgba(234, 0, 0, 0.08);
-  min-width: 450px;      /* 🔥 ADD THIS */
-  max-width: 550px; 
-  position: relative;     /* REQUIRED */
-  z-index: 1;             /* 🔽 BACK */
+  min-width: 450px;
+  max-width: 550px;
+
+  position: relative;
+  z-index: 1; /* stays behind Arun */
+
   transform: translateY(-10px) translateX(-180px);
   opacity: 0.95;
+
+  backface-visibility: hidden;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
+
+/* Hover effect – NO layer change */
+.profile-card2:hover {
+  transform: translateY(-10px) translateX(-180px) scale(1.03);
+  box-shadow:
+    0 16px 32px rgba(14, 165, 164, 0.18),
+    0 6px 12px rgba(0, 0, 0, 0.06);
+}
+
 
 .profile-header2 {
   display: flex;

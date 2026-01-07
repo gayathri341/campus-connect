@@ -73,6 +73,7 @@ export default function Landing() {
       {/* 🔥 RIGHT SIDE PREVIEW (red marked card area) */}
       <div className="hero-right">
      {/*Profile card 1*/}
+     
       <div className="profile-card1">
           <div className="profile-header1">
             <div className="avatar1">AK</div>
