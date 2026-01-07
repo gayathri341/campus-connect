@@ -44,8 +44,8 @@ export default function Landing() {
         </span>
 
         <h1>
-          Your Professional Network <br />
-          <span>Starts Here</span>
+          Structured<br />  Guidance from <br />
+          <span>Seniors Who've <br /> Been There</span>
         </h1>
 
         <p className="subtitle">
@@ -109,6 +109,7 @@ export default function Landing() {
         </div>
 
        {/*Profile card */}
+       <div class="profile-float">
         <div className="profile-card">
           <div className="profile-header">
             <div className="avatar">AK</div>
@@ -124,6 +125,7 @@ export default function Landing() {
             <h5>Resume Review</h5>
             <p>Tomorrow, 4:00 PM</p>
           </div>
+        </div>
         </div>
         
 
@@ -176,6 +178,10 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+
+
+      
   
       {/* CTA Section */}
       <section className="cta-section">
