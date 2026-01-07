@@ -180,6 +180,65 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ===== HOW STUDENTS USE SECTION ===== */}
+<section className="howuse-section">
+  <h2 className="howuse-title">
+    How Students Use <span>CampusConnect</span>
+  </h2>
+
+  <div className="howuse-card">
+    {/* User header */}
+    <div className="howuse-user">
+      <div className="howuse-avatar">P</div>
+      <div>
+        <h4>Priya, 2nd Year CSE</h4>
+        <p>Preparing for Java placements</p>
+      </div>
+    </div>
+
+    {/* Filters */}
+    <p className="howuse-subtext">She filters seniors by:</p>
+
+    <div className="howuse-filters">
+      <div className="howuse-filter">
+        <span className="icon">&lt;/&gt;</span>
+        <div>
+          <small>Domain</small>
+          <strong>Java / Backend</strong>
+        </div>
+      </div>
+
+      <div className="howuse-filter">
+        <span className="icon">👤</span>
+        <div>
+          <small>Batch</small>
+          <strong>2024</strong>
+        </div>
+      </div>
+
+      <div className="howuse-filter">
+        <span className="icon">🏢</span>
+        <div>
+          <small>Company Type</small>
+          <strong>Product-based</strong>
+        </div>
+      </div>
+    </div>
+
+    {/* Result */}
+    <div className="howuse-result">
+      <span className="check">✔</span>
+      <div>
+        <h5>Connected with a Verified Senior</h5>
+        <p>
+          She scheduled a mentorship session and received structured guidance
+          on DSA preparation, resume building, and interview strategies — all
+          from someone who recently got placed at a top product company.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
 
       

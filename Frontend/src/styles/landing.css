@@ -19,12 +19,7 @@
         transparent 40%
       ),
   
-      /* CENTER circle */
-      radial-gradient(
-        circle at center,
-        rgba(0, 180, 171, 0.342),
-        transparent 45%
-      ),
+    
 
       radial-gradient(
         circle at left bottom,
@@ -269,14 +264,137 @@
     font-size: 1.05rem;
     opacity: 0.95;
   }
-  
+  /* ===== HOW STUDENTS USE SECTION ===== */
+.howuse-section {
+  padding: 4rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.howuse-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 2.5rem;
+  color: #0f172a;
+}
+
+.howuse-title span {
+  color: #0ea5a4;
+}
+
+.howuse-card {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 2.5rem;
+  max-width: 900px;
+  width: 100%;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.08);
+}
+
+/* User header */
+.howuse-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.howuse-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: #fde8df;
+  color: #f97316;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.howuse-user h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.howuse-user p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.howuse-subtext {
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+/* Filters */
+.howuse-filters {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.howuse-filter {
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 200px;
+}
+
+.howuse-filter .icon {
+  font-size: 1.2rem;
+  color: #0ea5a4;
+}
+
+.howuse-filter small {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.howuse-filter strong {
+  font-size: 0.9rem;
+  color: #0f172a;
+}
+
+/* Result box */
+.howuse-result {
+  margin-top: 2rem;
+  background: #f0fdfb;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.howuse-result .check {
+  color: #22c55e;
+  font-size: 1.2rem;
+}
+
+.howuse-result h5 {
+  margin: 0 0 0.4rem 0;
+  font-size: 0.95rem;
+}
+
+.howuse-result p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
   /* Footer */
   .landing-footer {
     text-align: center;
     padding: 0;
     font-size: 0.9rem;
     color: #64748b;
-    background: #f8fafc;
+    background: transparent;
   }
   
 
