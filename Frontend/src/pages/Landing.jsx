@@ -2,6 +2,13 @@ import { useNavigate } from 'react-router-dom'
 import '../styles/landing.css'
 import logo from '../assets/logo.svg'
 import GroupStudyIcon from "../assets/groupstudysession.svg";
+import Professional from "../assets/professionalnetworking.svg";
+import SafeCommunity from "../assets/safecommunity.svg";
+import SecureMessaging from "../assets/securemessaging.svg";
+import SecurityTrust from "../assets/securitytrust.svg";
+import PlacementResources from "../assets/placementresources.svg";
+import Profile from "../assets/profile.svg";
+import Notifications from "../assets/notifications.svg";
 
 export default function Landing() {
   const navigate = useNavigate()
@@ -19,9 +26,21 @@ export default function Landing() {
         </div>
   {/* 🔥 NEW NAV LINKS (red marked) */}
      <nav className="nav-links">
-        <span>How it Works</span>
-        <span>Features</span>
-        <span>Why Us</span>
+        <span onClick={() =>
+      document
+        .getElementById("how-it-works")
+        .scrollIntoView({ behavior: "smooth" })
+    }>How it Works</span>
+        <span  onClick={() =>
+      document
+        .getElementById("features")
+        .scrollIntoView({ behavior: "smooth" })
+    }>Features</span>
+        <span onClick={() =>
+      document
+        .getElementById("why-us")
+        .scrollIntoView({ behavior: "smooth" })
+    }>Why Us</span>
       </nav>
 
       <div className="nav-actions">
@@ -76,7 +95,7 @@ export default function Landing() {
      
       <div className="profile-card1">
           <div className="profile-header1">
-            <div className="avatar1">AK</div>
+            <div className="avatar1">S</div>
             <div className= "arun1">
               <h4>Shalini</h4>
               <p>Oracle Developer • Batch 2023</p>
@@ -94,7 +113,7 @@ export default function Landing() {
        {/*Profile card 2*/}
        <div className="profile-card2">
           <div className="profile-header2">
-            <div className="avatar2">AK</div>
+            <div className="avatar2">A</div>
             <div className= "arun2">
               <h4>Anthony</h4>
               <p>R & D Engineer• Batch 2023</p>
@@ -139,111 +158,40 @@ export default function Landing() {
       </div>
     </section>
   
-      {/* Features Section */}
-  <section className="features-section">
-  <div className="features-header">
-    <h2>Everything you need to succeed</h2>
-    <p>
-      From networking to resources, we've got all the tools
-      to help you navigate your academic and professional journey.
-    </p>
-  </div>
-
-  <div className="features-track">
-    <div className="features-card">
-      <div className="card-icon">{/* SVG here */}</div>
-      <h3>Professional Networking</h3>
-      <img className="card-img" src="" alt="" />
-      <p>  Connect with students and early-stage professionals across domains.
-            Build meaningful relationships to share knowledge and opportunities.
-            Expand your network to support learning and career growth.
-</p>
-    </div>
-
-    <div className="features-card">
-      <div className="card-icon"></div>
-      <h3>Secure Messaging</h3>
-      <img className="card-img" src={GroupStudyIcon} alt="" />
-      <p> Engage in real-time conversations with connected users.
-            Share files instantly to support discussions and collaboration.
-            Ensures smooth, fast, and secure communication anytime.
-</p>
-    </div>
-
-    <div className="features-card">
-      <div className="card-icon"></div>
-      <h3>Placement Resources</h3>
-      <img className="card-img" src="" alt="" />
-      <p>Explore company-wise placement papers and interview questions.
-            Learn from real student interview experiences and insights.
-            Prepare effectively with organized and reliable resources.
-</p>
-    </div>
-
-    <div className="features-card">
-      <div className="card-icon"></div>
-      <h3>Safe Community</h3>
-      <img className="card-img" src="" alt="" />
-      <p> A built-in report system ensures a respectful environment.
-            Helps prevent misuse and unprofessional behavior.
-            Creates a safe, trusted space for all users.
-      </p>
-    </div>
-
-    <div className="features-card">
-      <div className="card-icon"></div>
-      <h3>Notification & Email Alerts</h3>
-      <img className="card-img" src="" alt="" />
-      <p>
-      Receive instant notifications for connection requests and messages.
-            Email alerts ensure no important update is missed.
-            Keeps users informed even when offline.
-
-      </p>
-    </div>
-
-    <div className="features-card">
-      <div className="card-icon"></div>
-      <h3> Smart User Profiles</h3>
-      <img className="card-img" src="" alt="" />
-      <p>
-      Each user maintains a detailed professional profile.
-            Showcase skills, domain interests, education, and achievements.
-            Helps others understand and connect with the right people.
-
-      </p>
-    </div>
-
-    <div className="features-card">
-      <div className="card-icon"></div>
-      <h3>Security & Trust Management</h3>
-      <img className="card-img" src="" alt="" />
-      <p>
-      User actions are monitored through policy-based security rules.
-            Accounts involved in repeated violations are automatically limited.
-            Protects users from impersonation and misuse.
-
-      </p>
-    </div>
-
-    <div className="features-card">
-      <div className="card-icon"></div>
-      <h3>Group Study Sessions</h3>
-      <img className="card-img" src="" alt="" />
-      <p>
-        Join domain-based and company-focused group study rooms.
-        Collaborate, discuss topics, and share resources in real time.
-        Encourages peer learning and collective growth.
-      </p>
-    </div>
-  </div>
-</section>
 
       {/* ===== HOW STUDENTS USE SECTION ===== */}
-<section className="howuse-section">
+<section className="howuse-section" id="how-it-works">
   <h2 className="howuse-title">
     How Students Use <span>CampusConnect</span>
   </h2>
+  
+  <div className="howuse-layout">
+
+    {/* LEFT : STEPS */}
+    <div className="howuse-steps">
+      <h3 className="steps-title">Get Started in Minutes</h3>
+
+      <div className="step-item">
+        <span className="step-number">01</span>
+        <div className="step-icon">📧</div>
+        <h4>Login with College Email</h4>
+        <p>Secure access ensures only verified students can join.</p>
+      </div>
+
+      <div className="step-item">
+        <span className="step-number">02</span>
+        <div className="step-icon">🔍</div>
+        <h4>Filter Seniors by Need</h4>
+        <p>Search by domain, skills, batch, or placement company.</p>
+      </div>
+
+      <div className="step-item">
+        <span className="step-number">03</span>
+        <div className="step-icon">📅</div>
+        <h4>Connect & Schedule</h4>
+        <p>Book mentorship sessions and receive structured guidance.</p>
+      </div>
+    </div> 
 
   <div className="howuse-card">
     {/* User header */}
@@ -262,24 +210,24 @@ export default function Landing() {
       <div className="howuse-filter">
         <span className="icon">&lt;/&gt;</span>
         <div>
-          <small>Domain : </small>
-          <strong>Java / Backend</strong>
+          <strong>Domain</strong><br/>
+          <small>Java / Backend</small>
         </div>
       </div>
 
       <div className="howuse-filter">
         <span className="icon">👤</span>
         <div>
-          <small>Batch</small>
-          <strong>2024</strong>
+          <strong>Batch</strong><br/>
+          <small>2024</small>
         </div>
       </div>
 
       <div className="howuse-filter">
         <span className="icon">🏢</span>
         <div>
-          <small>Company Type</small>
-          <strong>Product-based</strong>
+          <strong>Company Type</strong><br/>
+          <small>Product-based</small>
         </div>
       </div>
     </div>
@@ -297,27 +245,158 @@ export default function Landing() {
       </div>
     </div>
   </div>
+  </div>
+
+  
+</section>
+
+
+      {/* Features Section */}
+  <section className="features-section" id="features">
+  <div className="features-header">
+    <h2>Everything you need to succeed</h2>
+    <p>
+      From networking to resources, we've got all the tools
+      to help you navigate your academic and professional journey.
+    </p>
+  </div>
+
+  <div className="features-track">
+    <div className="features-card">
+      <div className="card-icon">{/* SVG here */}</div>
+      <h3>Professional Networking</h3>
+      <img className="card-img" src={Professional} alt="" />
+      <p>  Connect with students and early-stage professionals across domains.
+            Build meaningful relationships to share knowledge and opportunities.
+            Expand your network to support learning and career growth.
+</p>
+    </div>
+
+    <div className="features-card">
+      <div className="card-icon"></div>
+      <h3>Secure Messaging</h3>
+      <img className="card-img" src={SecureMessaging} alt="" />
+      <p> Engage in real-time conversations with connected users.
+            Share files instantly to support discussions and collaboration.
+            Ensures smooth, fast, and secure communication anytime.
+</p>
+    </div>
+
+    <div className="features-card">
+      <div className="card-icon"></div>
+      <h3>Placement Resources</h3>
+      <img className="card-img" src={PlacementResources} alt="" />
+      <p>Explore company-wise placement papers and interview questions.
+            Learn from real student interview experiences and insights.
+            Prepare effectively with organized and reliable resources.
+</p>
+    </div>
+
+    <div className="features-card">
+      <div className="card-icon"></div>
+      <h3>Safe Community</h3>
+      <img className="card-img" src={SafeCommunity} alt="" />
+      <p> A built-in report system ensures a respectful environment.
+            Helps prevent misuse and unprofessional behavior.
+            Creates a safe, trusted space for all users.
+      </p>
+    </div>
+
+    <div className="features-card">
+      <div className="card-icon"></div>
+      <h3>Notification & Email Alerts</h3>
+      <img className="card-img" src={Notifications} alt="" />
+      <p>
+      Receive instant notifications for connection requests and messages.
+            Email alerts ensure no important update is missed.
+            Keeps users informed even when offline.
+
+      </p>
+    </div>
+
+    <div className="features-card">
+      <div className="card-icon"></div>
+      <h3> Smart User Profiles</h3>
+      <img className="card-img" src={Profile} alt="" />
+      <p>
+      Each user maintains a detailed professional profile.
+            Showcase skills, domain interests, education, and achievements.
+            Helps others understand and connect with the right people.
+
+      </p>
+    </div>
+
+    <div className="features-card">
+      <div className="card-icon"></div>
+      <h3>Security & Trust Management</h3>
+      <img className="card-img" src={SecurityTrust} alt="" />
+      <p>
+      User actions are monitored through policy-based security rules.
+            Accounts involved in repeated violations are automatically limited.
+            Protects users from impersonation and misuse.
+
+      </p>
+    </div>
+
+    <div className="features-card">
+      <div className="card-icon"></div>
+      <h3>Group Study Sessions</h3>
+      <img className="card-img" src={GroupStudyIcon} alt="" />
+      <p>
+        Join domain-based and company-focused group study rooms.
+        Collaborate, discuss topics, and share resources in real time.
+        Encourages peer learning and collective growth.
+      </p>
+    </div>
+  </div>
 </section>
 
 
       
-  
-      {/* CTA Section */}
-      <section className="cta-section">
-        <h2>Ready to get started?</h2>
-        <p>
-          Join thousands of students who are already building their
-          professional network on CampusConnect.
-        </p>
-  
-        <button
-          className="primary-btn large"
-          onClick={() => navigate("/signup")}
-        >
-          Create Free Account →
-        </button>
-      </section>
-  
+  {/* CTA Section */}
+<section className="cta-section" id="why-us">
+
+<div className="cta-layout">
+
+  {/* LEFT CONTENT */}
+  <div className="cta-left">
+    <h2 className="cta-title">
+      Connect. Learn. Grow. Together.
+    </h2>
+
+    <p className="cta-quote">
+      “Designed to connect students within a trusted campus network.
+      Match with peers and seniors based on skills, domain, and goals.
+      Access shared placement resources and real-world experiences.
+      Build meaningful connections that support your career journey.”
+      <br />
+      <span className="cta-author">– CampusConnect</span>
+    </p>
+
+    <button
+      className="primary-btn large cta-btn"
+      onClick={() => navigate("/signup")}
+    >
+      Create Free Account →
+    </button>
+  </div>
+
+  {/* RIGHT VISUAL (EMPTY PLACEHOLDERS) */}
+  <div className="cta-right">
+    <div className="cta-box">
+      {/* SVG / Image goes here */}
+    </div>
+
+    <div className="cta-circle cta-circle-blue"></div>
+    <div className="cta-circle cta-circle-yellow"></div>
+    <div className="cta-circle cta-circle-yellow2"></div>
+    <div className="cta-dots"></div>
+  </div>
+
+</div>
+
+</section>
+
       {/* Footer */}
       <footer className="landing-footer">
         © 2026 CampusConnect. Built with ❤️ for students.

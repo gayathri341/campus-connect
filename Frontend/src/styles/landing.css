@@ -183,6 +183,7 @@
     }
   }
   
+
   /* Features Section */
   .features-section {
     margin-top:5rem;
@@ -295,35 +296,137 @@
   margin-top: 1rem;
 }
 
-  /* CTA Section */
-  .cta-section {
-    margin: 6rem 3rem;
-    padding: 4.5rem 2rem;
-    border-radius: 28px;
-    text-align: center;
-    background: linear-gradient(135deg, #0ea5a4, #0ea5e9);
-    color: #ffffff;
-  }
-  
-  .cta-section h2 {
-    font-size: 2.3rem;
-    font-weight: 700;
-  }
-  
-  .cta-section p {
-    max-width: 600px;
-    margin: 1rem auto 2.8rem;
-    font-size: 1.05rem;
-    opacity: 0.95;
-  }
-  /* ===== HOW STUDENTS USE SECTION ===== */
-.howuse-section {
-  padding: 4rem 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top:5rem;
+/* ===== CTA SECTION ===== */
+.cta-section {
+  margin: 10rem 4rem 5rem;
+  padding: 5rem 4rem;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #0ea5a4, #0ea4e900);
+  color: #ffffff;
+  overflow: hidden;
 }
+
+/* Layout */
+.cta-layout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4rem;
+}
+
+/* LEFT */
+.cta-left {
+  flex: 1;
+}
+
+.cta-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 1.8rem;
+}
+
+.cta-quote {
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  opacity: 0.95;
+  max-width: 520px;
+}
+
+.cta-author {
+  display: block;
+  margin-top: 0.8rem;
+  font-style: normal;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.cta-btn {
+  margin-top: 2.2rem;
+}
+
+/* RIGHT */
+.cta-right {
+  flex: 1;
+  position: relative;
+  min-height: 320px;
+}
+
+/* Center box */
+.cta-box {
+  width: 220px;
+  height: 280px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+  position: relative;
+  z-index: 3;
+  margin-left: 10rem;
+}
+
+/* Circles */
+.cta-circle {
+  position: absolute;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.cta-circle-blue {
+  width: 220px;
+  height: 220px;
+  background: #38c0fb;
+  top: 40px;
+  right: 60px;
+  background-image: url("../assets/notifications.svg"); /* or png */
+  background-size: cover;
+  background-position: center;
+}
+
+.cta-circle-yellow {
+  width: 140px;
+  height: 140px;
+  background: #e6ce6b;
+  bottom: 10px;
+  right: 20px;
+}
+
+.cta-circle-yellow2 {
+  width: 220px;
+  height: 220px;
+  background: #45d79d;
+  bottom: -80px;
+  right: 220px;
+  z-index:5;
+}
+
+  /* ===== HOW STUDENTS USE SECTION ===== */
+  .howuse-section {
+    position: relative;          /* 🔑 important */
+    padding: 4rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: -4rem;
+    overflow: hidden;            /* bg outside leak aagadhu */
+  }
+  
+  /* Background image layer */
+  .howuse-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 10rem;
+         /* 👈 blur strength */
+    
+    z-index: 0;
+  }
+  
+  /* Content should be above background */
+  .howuse-section > * {
+    position: relative;
+    z-index: 1;
+  }
+  
 
 .howuse-title {
   font-size: 2.2rem;
@@ -336,13 +439,93 @@
   color: #0ea5a4;
 }
 
+/* ===== LAYOUT ===== */
+.howuse-layout {
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+  max-width: 1200px;
+  width: 100%;
+}
+
+/* ===== LEFT STEPS ===== */
+.howuse-steps {
+  flex: 1;
+  
+
+}
+
+.steps-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #0f172a;
+  margin-left:-5rem;
+  margin-top:-0.1rem;
+  
+}
+
+.step-item {
+  position: relative;
+  margin-bottom: 1rem;
+  background-color: #ffffff;
+  width:30rem;
+  padding:0.5rem 0.5rem;
+  border-radius:10px;
+  margin-left:-5rem;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.2);
+}
+
+.step-number {
+  position: absolute;
+  font-size: 3rem;
+  font-weight: 700;
+  color: rgba(14, 165, 165, 0.273);
+  margin-left:25rem;
+
+}
+
+.step-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #b9e2e2, #22c1c3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.3rem;
+  margin-bottom: 0.6rem;
+  margin-left:1rem;
+  margin-top:0.5rem;
+ 
+}
+
+.step-item h4 {
+  margin: 1rem;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.step-item p {
+
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 1rem;
+}
+
+/* ===== RIGHT CARD ===== */
+
+
 .howuse-card {
   background: #ffffff;
   border-radius: 22px;
   padding: 2.5rem;
   max-width: 900px;
   width: 100%;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.292);
+  flex: 1.2;
+  margin-top:2rem;
 }
 
 /* User header */
@@ -373,12 +556,13 @@
   margin: 0;
   font-size: 0.85rem;
   color: #64748b;
+  margin-top:0.2rem;
 }
 
 .howuse-subtext {
-  margin-top: 2rem;
-  font-size: 0.9rem;
-  color: #94a3b8;
+  margin-top: 2.4rem;
+  font-size: 1rem;
+  color: #000000;
 }
 
 /* Filters */
@@ -390,7 +574,7 @@
 }
 
 .howuse-filter {
-  background: #f8fafc;
+  background: #f0eded;
   border-radius: 14px;
   padding: 1rem 1.2rem;
   display: flex;
@@ -405,19 +589,19 @@
 }
 
 .howuse-filter small {
-  font-size: 0.75rem;
-  color: #94a3b8;
+  font-size: 0.85rem;
+  color: #3e4755;
 }
 
 .howuse-filter strong {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #0f172a;
 }
 
 /* Result box */
 .howuse-result {
   margin-top: 2rem;
-  background: #f0fdfb;
+  background: #c9f7f0;
   border-radius: 16px;
   padding: 1.5rem;
   display: flex;
@@ -461,10 +645,13 @@
 
 .nav-links span {
   cursor: pointer;
+  
 }
 
 .nav-links span:hover {
-  color: #0ea5a4;
+  color: #0c7474;
+
+ font-weight:bold;
 }
 
 /* ===== NAV LINKS ===== */
@@ -557,13 +744,13 @@
   width: 50px;
   height: 50px;
   border-radius: 30%;
-  background: #affff6;
+  background: #dbeeec;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 690;
   font-size:large;
-  color: #34989a;
+  color: #318687;
 }
 
 .profile-header h4 {
@@ -666,13 +853,13 @@
   width: 50px;
   height: 50px;
   border-radius: 30%;
-  background: #affff6;
+  background: #dbeeec;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 690;
   font-size:large;
-  color: #34989a;
+  color: #318687;
 }
 
 .profile-header1 h4 {
@@ -775,13 +962,13 @@
   width: 50px;
   height: 50px;
   border-radius: 30%;
-  background: #affff6;
+  background: #dbeeec;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 690;
   font-size:large;
-  color: #34989a;
+  color: #318687;
 }
 
 .profile-header2 h4 {
