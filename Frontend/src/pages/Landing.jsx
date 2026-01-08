@@ -153,28 +153,70 @@ export default function Landing() {
           <div className="features-card">
             <h3>Professional Networking</h3>
             <p>
-              Connect with students and early professionals from various domains.
+            Connect with students and early-stage professionals across domains.
+            Build meaningful relationships to share knowledge and opportunities.
+            Expand your network to support learning and career growth.
             </p>
           </div>
   
           <div className="features-card">
             <h3>Secure Messaging</h3>
             <p>
-              Real-time chat with file sharing for connected users.
+            Engage in real-time conversations with connected users.
+            Share files instantly to support discussions and collaboration.
+            Ensures smooth, fast, and secure communication anytime.
             </p>
           </div>
+
+
   
           <div className="features-card">
             <h3>Placement Resources</h3>
             <p>
-              Access company-wise placement papers and interview experiences.
+            Explore company-wise placement papers and interview questions.
+            Learn from real student interview experiences and insights.
+            Prepare effectively with organized and reliable resources.
             </p>
           </div>
   
           <div className="features-card">
             <h3>Safe Community</h3>
             <p>
-              Report system to maintain a respectful and professional environment.
+            A built-in report system ensures a respectful environment.
+            Helps prevent misuse and unprofessional behavior.
+            Creates a safe, trusted space for all users.
+            </p>
+          </div>
+          <div className="features-card">
+            <h3>Notification & Email Alerts</h3>
+            <p>
+            Receive instant notifications for connection requests and messages.
+            Email alerts ensure no important update is missed.
+            Keeps users informed even when offline.
+            </p>
+          </div>
+          <div className="features-card">
+            <h3> Smart User Profiles</h3>
+            <p>
+            Each user maintains a detailed professional profile.
+            Showcase skills, domain interests, education, and achievements.
+            Helps others understand and connect with the right people.
+            </p>
+          </div>
+          <div className="features-card">
+            <h3>Security & Trust Management</h3>
+            <p>
+            User actions are monitored through policy-based security rules.
+            Accounts involved in repeated violations are automatically limited.
+            Protects users from impersonation and misuse.
+            </p>
+          </div>
+          <div className="features-card">
+            <h3>Group Study Sessions</h3>
+            <p>
+            Join domain-based and company-focused group study rooms.
+            Collaborate, discuss topics, and share resources in real time.
+            Encourages peer learning and collective growth.
             </p>
           </div>
         </div>
