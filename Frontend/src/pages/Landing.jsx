@@ -141,86 +141,103 @@ export default function Landing() {
   
       {/* Features Section */}
       <section className="features-section">
-        <div className="features-header">
-          <h2>Everything you need to succeed</h2>
-          <p>
-            From networking to resources, we've got all the tools
-            to help you navigate your academic and professional journey.
-          </p>
-        </div>
-  
-        <div className="features-grid">
-          <div className="features-card">
-            <h3>Professional Networking</h3>
-            <p>
-            Connect with students and early-stage professionals across domains.
+  <div className="features-header">
+    <h2>Everything you need to succeed</h2>
+    <p>
+      From networking to resources, we've got all the tools
+      to help you navigate your academic and professional journey.
+    </p>
+  </div>
+
+  <div className="features-track">
+    <div className="features-card">
+      <div className="card-icon">{/* SVG here */}</div>
+      <h3>Professional Networking</h3>
+      <img className="card-img" src="" alt="" />
+      <p>  Connect with students and early-stage professionals across domains.
             Build meaningful relationships to share knowledge and opportunities.
             Expand your network to support learning and career growth.
-            </p>
-          </div>
-  
-          <div className="features-card">
-            <h3>Secure Messaging</h3>
-            <p>
-            Engage in real-time conversations with connected users.
+</p>
+    </div>
+
+    <div className="features-card">
+      <div className="card-icon"></div>
+      <h3>Secure Messaging</h3>
+      <img className="card-img" src="" alt="" />
+      <p> Engage in real-time conversations with connected users.
             Share files instantly to support discussions and collaboration.
             Ensures smooth, fast, and secure communication anytime.
-            </p>
-          </div>
+</p>
+    </div>
 
-
-  
-          <div className="features-card">
-            <h3>Placement Resources</h3>
-            <p>
-            Explore company-wise placement papers and interview questions.
+    <div className="features-card">
+      <div className="card-icon"></div>
+      <h3>Placement Resources</h3>
+      <img className="card-img" src="" alt="" />
+      <p>Explore company-wise placement papers and interview questions.
             Learn from real student interview experiences and insights.
             Prepare effectively with organized and reliable resources.
-            </p>
-          </div>
-  
-          <div className="features-card">
-            <h3>Safe Community</h3>
-            <p>
-            A built-in report system ensures a respectful environment.
+</p>
+    </div>
+
+    <div className="features-card">
+      <div className="card-icon"></div>
+      <h3>Safe Community</h3>
+      <img className="card-img" src="" alt="" />
+      <p> A built-in report system ensures a respectful environment.
             Helps prevent misuse and unprofessional behavior.
             Creates a safe, trusted space for all users.
-            </p>
-          </div>
-          <div className="features-card">
-            <h3>Notification & Email Alerts</h3>
-            <p>
-            Receive instant notifications for connection requests and messages.
+      </p>
+    </div>
+
+    <div className="features-card">
+      <div className="card-icon"></div>
+      <h3>Notification & Email Alerts</h3>
+      <img className="card-img" src="" alt="" />
+      <p>
+      Receive instant notifications for connection requests and messages.
             Email alerts ensure no important update is missed.
             Keeps users informed even when offline.
-            </p>
-          </div>
-          <div className="features-card">
-            <h3> Smart User Profiles</h3>
-            <p>
-            Each user maintains a detailed professional profile.
+
+      </p>
+    </div>
+
+    <div className="features-card">
+      <div className="card-icon"></div>
+      <h3> Smart User Profiles</h3>
+      <img className="card-img" src="" alt="" />
+      <p>
+      Each user maintains a detailed professional profile.
             Showcase skills, domain interests, education, and achievements.
             Helps others understand and connect with the right people.
-            </p>
-          </div>
-          <div className="features-card">
-            <h3>Security & Trust Management</h3>
-            <p>
-            User actions are monitored through policy-based security rules.
+
+      </p>
+    </div>
+
+    <div className="features-card">
+      <div className="card-icon"></div>
+      <h3>Security & Trust Management</h3>
+      <img className="card-img" src="" alt="" />
+      <p>
+      User actions are monitored through policy-based security rules.
             Accounts involved in repeated violations are automatically limited.
             Protects users from impersonation and misuse.
-            </p>
-          </div>
-          <div className="features-card">
-            <h3>Group Study Sessions</h3>
-            <p>
-            Join domain-based and company-focused group study rooms.
-            Collaborate, discuss topics, and share resources in real time.
-            Encourages peer learning and collective growth.
-            </p>
-          </div>
-        </div>
-      </section>
+
+      </p>
+    </div>
+
+    <div className="features-card">
+      <div className="card-icon"></div>
+      <h3>Group Study Sessions</h3>
+      <img className="card-img" src="" alt="" />
+      <p>
+        Join domain-based and company-focused group study rooms.
+        Collaborate, discuss topics, and share resources in real time.
+        Encourages peer learning and collective growth.
+      </p>
+    </div>
+  </div>
+</section>
 
       {/* ===== HOW STUDENTS USE SECTION ===== */}
 <section className="howuse-section">

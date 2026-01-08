@@ -211,38 +211,92 @@
   }
   
   /* 🔥 IMPORTANT PART */
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.8rem;
-  }
-  
-  .features-card {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(6px);
-    border-radius: 16px;
-    padding: 2rem 1.8rem;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  
-  .features-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.08);
-  }
-  
-  .features-card h3 {
-    font-size: 1.05rem;
-    margin-bottom: 0.6rem;
-    color: #111827;
-  }
-  
-  .features-card p {
-    font-size: 0.95rem;
-    color: #6b7280;
-    line-height: 1.5;
-  }
-  
+ /* ❌ header css untouched */
+
+/* Horizontal track */
+.features-track {
+  display: flex;
+  width: 100%;
+  height: 25rem;
+  overflow:visible;
+  flex-wrap: nowrap; 
+}
+.features-track .features-card:nth-of-type(1) {
+  margin-left: 0;
+}
+/* Feature Card */
+.features-card {
+  flex: 0 0 auto;          /* ❌ auto stretch stop */
+  min-width: 280px;        /* 👈 increase this if needed */
+  max-width: 320px;        /* optional – clean control */
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  padding: 0.3rem 1rem;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  /* Strong shadow */
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.12),
+    0 8px 20px rgba(14, 165, 164, 0.15);
+
+  /* Animation base */
+  transform: scale(0.96) translateY(12px);
+  opacity: 0.85;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease,
+    opacity 0.35s ease;
+
+  /* No gap between cards */
+  margin-left: -160px;
+
+}
+
+/* Hover = front focus */
+.features-card:hover {
+  transform: scale(1.05) translateY(-10px);
+  opacity: 1;
+  z-index: 3;
+
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.18),
+    0 16px 36px rgba(14, 165, 164, 0.35);
+}
+
+/* Icon placeholder */
+.card-icon {
+  width: 42px;
+  height: 42px;
+  margin-bottom: 0.8rem;
+}
+
+/* Heading */
+.features-card h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.6rem;
+}
+
+/* Image placeholder */
+.card-img {
+  width: 100%;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 0.8rem;
+  opacity: 0.85;
+}
+
+/* Text */
+.features-card p {
+  font-size: 0.92rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
   /* CTA Section */
   .cta-section {
     margin: 6rem 3rem;
@@ -477,7 +531,6 @@
   padding: 1.8rem 2rem;
   min-width: 450px;
   max-width: 550px;
-
   backface-visibility: hidden;
 
   /* smooth hover prep */
