@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import '../styles/landing.css'
 import logo from '../assets/logo.svg'
-
+import GroupStudyIcon from "../assets/groupstudysession.svg";
 
 export default function Landing() {
   const navigate = useNavigate()
@@ -140,7 +140,7 @@ export default function Landing() {
     </section>
   
       {/* Features Section */}
-      <section className="features-section">
+  <section className="features-section">
   <div className="features-header">
     <h2>Everything you need to succeed</h2>
     <p>
@@ -163,7 +163,7 @@ export default function Landing() {
     <div className="features-card">
       <div className="card-icon"></div>
       <h3>Secure Messaging</h3>
-      <img className="card-img" src="" alt="" />
+      <img className="card-img" src={GroupStudyIcon} alt="" />
       <p> Engage in real-time conversations with connected users.
             Share files instantly to support discussions and collaboration.
             Ensures smooth, fast, and secure communication anytime.
@@ -262,7 +262,7 @@ export default function Landing() {
       <div className="howuse-filter">
         <span className="icon">&lt;/&gt;</span>
         <div>
-          <small>Domain</small>
+          <small>Domain : </small>
           <strong>Java / Backend</strong>
         </div>
       </div>

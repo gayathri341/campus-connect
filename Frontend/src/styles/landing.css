@@ -2,11 +2,7 @@
 
 .landing-container {
     min-height: 100vh;
-    background: radial-gradient(
-        circle at right,
-        rgba(0, 180, 171, 0.404),
-        transparent 40%
-      ),
+    background: 
 
       radial-gradient(
         circle at left top,
@@ -189,7 +185,7 @@
   
   /* Features Section */
   .features-section {
-
+    margin-top:5rem;
     background: transparent;
   }
   
@@ -217,7 +213,7 @@
 .features-track {
   display: flex;
   width: 100%;
-  height: 25rem;
+  height: 28rem;
   overflow:visible;
   flex-wrap: nowrap; 
 }
@@ -231,7 +227,7 @@
   max-width: 320px;        /* optional – clean control */
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(10px);
-  padding: 0.3rem 1rem;
+  padding: 1rem 2rem;
   border-radius: 18px;
   display: flex;
   flex-direction: column;
@@ -239,8 +235,8 @@
 
   /* Strong shadow */
   box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.12),
-    0 8px 20px rgba(14, 165, 164, 0.15);
+    0 18px 40px rgba(0, 0, 0, 0.356),
+    0 8px 20px rgba(14, 165, 165, 0.777);
 
   /* Animation base */
   transform: scale(0.96) translateY(12px);
@@ -268,8 +264,8 @@
 
 /* Icon placeholder */
 .card-icon {
-  width: 42px;
-  height: 42px;
+  width: 0px;
+  height: 5px;
   margin-bottom: 0.8rem;
 }
 
@@ -277,24 +273,26 @@
 .features-card h3 {
   font-size: 1.05rem;
   font-weight: 600;
-  color: #111827;
+  color: #106767;
   margin-bottom: 0.6rem;
 }
 
 /* Image placeholder */
 .card-img {
   width: 100%;
-  height: 80px;
+  height: 150px;
   object-fit: contain;
   margin-bottom: 0.8rem;
+  margin-top:0.8rem;
   opacity: 0.85;
 }
 
 /* Text */
 .features-card p {
   font-size: 0.92rem;
-  color: #6b7280;
+  color: #000000;
   line-height: 1.5;
+  margin-top: 1rem;
 }
 
   /* CTA Section */
@@ -324,6 +322,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top:5rem;
 }
 
 .howuse-title {
