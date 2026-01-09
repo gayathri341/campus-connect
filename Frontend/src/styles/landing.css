@@ -356,12 +356,15 @@
 .cta-box {
   width: 220px;
   height: 280px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 16px;
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(10px);
   position: relative;
   z-index: 3;
   margin-left: 10rem;
+  background-image: url("../assets/resumefooter.svg"); /* or png */
+  background-size: cover;
+  background-position: center;
 }
 
 /* Circles */
@@ -377,9 +380,7 @@
   background: #38c0fb;
   top: 40px;
   right: 60px;
-  background-image: url("../assets/notifications.svg"); /* or png */
-  background-size: cover;
-  background-position: center;
+
 }
 
 .cta-circle-yellow {
@@ -473,7 +474,7 @@
   padding:0.5rem 0.5rem;
   border-radius:10px;
   margin-left:-5rem;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.122);
 }
 
 .step-number {
@@ -485,7 +486,7 @@
 
 }
 
-.step-icon {
+.step-icon{
   width: 48px;
   height: 48px;
   border-radius: 14px;
@@ -493,12 +494,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: #ffffff;
   font-size: 1.3rem;
   margin-bottom: 0.6rem;
   margin-left:1rem;
   margin-top:0.5rem;
  
+}
+.step-icon img{
+  width: 23px;
+  height: 23px;
+  object-fit: contain;
 }
 
 .step-item h4 {
@@ -586,6 +592,12 @@
 .howuse-filter .icon {
   font-size: 1.2rem;
   color: #0ea5a4;
+}
+
+.icon img{
+  width: 21px;
+  height: 21px;
+  object-fit: contain;
 }
 
 .howuse-filter small {

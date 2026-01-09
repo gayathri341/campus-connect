@@ -9,6 +9,12 @@ import SecurityTrust from "../assets/securitytrust.svg";
 import PlacementResources from "../assets/placementresources.svg";
 import Profile from "../assets/profile.svg";
 import Notifications from "../assets/notifications.svg";
+import Search from "../assets/search.png";
+import Event from "../assets/event.png";
+import Login from "../assets/login.png";
+import Code from "../assets/code.png";
+import User from "../assets/profile.png";
+import City from "../assets/city.png";
 
 export default function Landing() {
   const navigate = useNavigate()
@@ -173,21 +179,21 @@ export default function Landing() {
 
       <div className="step-item">
         <span className="step-number">01</span>
-        <div className="step-icon">📧</div>
+        <div className="step-icon"><img src={Login}></img></div>
         <h4>Login with College Email</h4>
         <p>Secure access ensures only verified students can join.</p>
       </div>
 
       <div className="step-item">
         <span className="step-number">02</span>
-        <div className="step-icon">🔍</div>
+        <div className="step-icon"><img src={Search}></img></div>
         <h4>Filter Seniors by Need</h4>
         <p>Search by domain, skills, batch, or placement company.</p>
       </div>
 
       <div className="step-item">
         <span className="step-number">03</span>
-        <div className="step-icon">📅</div>
+        <div className="step-icon"><img src={Event}></img></div>
         <h4>Connect & Schedule</h4>
         <p>Book mentorship sessions and receive structured guidance.</p>
       </div>
@@ -208,7 +214,7 @@ export default function Landing() {
 
     <div className="howuse-filters">
       <div className="howuse-filter">
-        <span className="icon">&lt;/&gt;</span>
+        <span className="icon"><img src={Code}></img></span>
         <div>
           <strong>Domain</strong><br/>
           <small>Java / Backend</small>
@@ -216,7 +222,7 @@ export default function Landing() {
       </div>
 
       <div className="howuse-filter">
-        <span className="icon">👤</span>
+        <span className="icon"><img src={User}></img></span>
         <div>
           <strong>Batch</strong><br/>
           <small>2024</small>
@@ -224,7 +230,7 @@ export default function Landing() {
       </div>
 
       <div className="howuse-filter">
-        <span className="icon">🏢</span>
+        <span className="icon"><img src={City}></img></span>
         <div>
           <strong>Company Type</strong><br/>
           <small>Product-based</small>
