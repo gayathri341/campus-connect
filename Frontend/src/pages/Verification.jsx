@@ -3,43 +3,34 @@ import { supabase } from '../supabase'
 import { useNavigate } from 'react-router-dom'
 import '../styles/verification.css'
 
-
 export default function Verification() {
   const [file, setFile] = useState(null)
   const [status, setStatus] = useState(null)
   const [user, setUser] = useState(null)
   const navigate = useNavigate()
 
-  // 🔁 Reusable fetch function
   const fetchVerificationStatus = async (currentUser) => {
-    // 1️⃣ Always check profile first
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_verified')
       .eq('id', currentUser.id)
       .single()
 
-    // ✅ If verified → dashboard
     if (profile?.is_verified) {
       navigate('/dashboard')
       return
     }
 
-    // 2️⃣ Else check verification document status
     const { data: doc } = await supabase
       .from('verification_documents')
       .select('status')
       .eq('user_id', currentUser.id)
       .maybeSingle()
 
-    if (doc?.status) {
-      setStatus(doc.status)
-    } else {
-      setStatus(null)
-    }
+    if (doc?.status) setStatus(doc.status)
+    else setStatus(null)
   }
 
-  // 🔹 On page load
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -48,7 +39,6 @@ export default function Verification() {
       setUser(user)
       await fetchVerificationStatus(user)
     }
-
     init()
   }, [navigate])
 
@@ -57,7 +47,6 @@ export default function Verification() {
 
     const filePath = `${user.id}/proof.pdf`
 
-    // 3️⃣ Upload to storage
     const { error: uploadError } = await supabase.storage
       .from('verification-docs')
       .upload(filePath, file, {
@@ -70,7 +59,6 @@ export default function Verification() {
       return
     }
 
-    // 4️⃣ Insert verification record
     const { error: dbError } = await supabase
       .from('verification_documents')
       .insert({
@@ -85,38 +73,77 @@ export default function Verification() {
     }
 
     alert('Document uploaded. Verification pending.')
-
-    // 🔁 Re-fetch status after upload
     await fetchVerificationStatus(user)
   }
 
   return (
-    <div>
-      <h2>Student Verification</h2>
+    <div className="verify-page">
+      <div className="verify-card">
 
-      {status === 'pending' && (
-        <p>⏳ Verification pending. Please wait.</p>
-      )}
+        <h2 className="verify-title">
+          Verify Your College Identity
+        </h2>
 
-      {status === 'rejected' && (
-        <p>❌ Verification rejected. Upload again.</p>
-      )}
+        <p className="verify-subtext">
+          Upload your college ID card to confirm that you belong to your college.
+          This helps us keep CampusConnect safe and trusted.
+        </p>
 
-      {!status && (
-        <p>📄 Please upload your verification document.</p>
-      )}
+        {/* Status Messages */}
+        {status === 'pending' && (
+          <div className="verify-status pending">
+            ⏳ Verification pending. Please wait.
+          </div>
+        )}
 
-      {/* Upload allowed only if NOT approved */}
-      {(status === null || status === 'pending' || status === 'rejected') && (
-        <>
-          <input
-            type="file"
-            accept=".pdf,.jpg,.png"
-            onChange={e => setFile(e.target.files[0])}
-          />
-          <button onClick={uploadDoc}>Upload Document</button>
-        </>
-      )}
+        {status === 'rejected' && (
+          <div className="verify-status rejected">
+            ❌ Verification rejected. Please upload again.
+          </div>
+        )}
+
+        {!status && (
+          <div className="verify-status info">
+            📄 Please upload your verification document.
+          </div>
+        )}
+
+        {/* Upload Section */}
+        {(status === null || status === 'pending' || status === 'rejected') && (
+          <div className="upload-box">
+            <input
+              type="file"
+              accept=".pdf,.jpg,.png"
+              onChange={e => setFile(e.target.files[0])}
+            />
+
+            <p className="upload-help">
+              Accepted formats: PDF, JPG, PNG<br />
+              Max size: 2 MB
+            </p>
+
+            <button
+              className="upload-btn"
+              onClick={uploadDoc}
+              disabled={!file}
+            >
+              Upload Document
+            </button>
+          </div>
+        )}
+
+        <p className="verify-note">
+          Verification usually takes 24–48 hours.
+        </p>
+
+        {/* Privacy Info */}
+        <div className="verify-privacy">
+          <p>🔒 Your document is encrypted</p>
+          <p>👁️ Used only for college verification</p>
+          <p>🗑️ Deleted after verification</p>
+        </div>
+
+      </div>
     </div>
   )
 }
