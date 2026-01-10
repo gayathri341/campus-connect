@@ -135,6 +135,7 @@
       #1a8f8f
     );
     background-size: 200% auto;
+    background-clip: text;  
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: shine 6s linear infinite;

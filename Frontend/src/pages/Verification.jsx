@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
 import { useNavigate } from 'react-router-dom'
 import '../styles/verification.css'
+import Doc from "../assets/docs.png";
 
 export default function Verification() {
   const [file, setFile] = useState(null)
@@ -104,7 +105,8 @@ export default function Verification() {
 
         {!status && (
           <div className="verify-status info">
-            📄 Please upload your verification document.
+            <img src={Doc}></img>
+             Please upload your verification document.
           </div>
         )}
 

@@ -57,6 +57,12 @@
   color: #155e75;
 }
 
+.verify-status.info img{
+width: 23px;
+height: 13px;
+object-fit: contain;
+}
+
 /* Upload box */
 .upload-box {
   margin-top: 1.2rem;
