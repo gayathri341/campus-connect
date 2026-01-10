@@ -2,6 +2,9 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import '../styles/navbar.css'
 import logo from '../assets/logo.svg'
+import Userd from "../assets/userd.png";
+import Logout from "../assets/logout.png";
+import Ring from "../assets/ringing.png";
 
 export default function Navbar() {
   const navigate = useNavigate()
@@ -40,18 +43,18 @@ export default function Navbar() {
           className="icon-btn"
           onClick={() => navigate('/notifications')}
         >
-          🔔
+         <img src={Ring}></img>
         </button>
 
         <button
           className="icon-btn"
           onClick={() => navigate('/profile')}
         >
-          👤
+         <img src={Userd}></img>
         </button>
 
         <button className="icon-btn logout" onClick={handleLogout}>
-          ⎋
+        <img src={Logout}></img>
         </button>
       </div>
     </header>

@@ -64,10 +64,19 @@
     font-size: 1.1rem;
     cursor: pointer;
     padding: 0.4rem;
+    
   }
+  .icon-btn img{
+  width: 21px;
+  height: 21px;
+  object-fit: contain;
+  margin-top:0.5rem;
+  }
+
   
+
   .icon-btn:hover {
-    opacity: 0.7;
+    opacity: 1;
   }
   
   .logout {
