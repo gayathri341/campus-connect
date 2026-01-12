@@ -2,7 +2,9 @@ import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../supabase'
 import Navbar from '../components/Navbar'
 import '../styles/profile.css'
-import Plus from "../assets/plus.png";
+
+import Plus from "../assets/plus.png"
+import Userd from "../assets/userd.png";
 
 const DOMAIN_OPTIONS = ['IT','CSE','ECE','EEE','MECH','CIVIL','CHEM','BIO','OTHER']
 const AVAILABILITY_OPTIONS = ['Available','Busy','Not Available']
@@ -24,7 +26,7 @@ export default function Profile() {
   const [availability, setAvailability] = useState('')
   const [placementStatus, setPlacementStatus] = useState('')
 
-  // avatar logic untouched
+  // avatar logic (UNCHANGED)
   const [file, setFile] = useState(null)
   const fileInputRef = useRef(null)
 
@@ -108,6 +110,15 @@ export default function Profile() {
     setFile(null)
   }
 
+  const removeAvatar = async () => {
+    await supabase
+      .from('profiles')
+      .update({ avatar_url: null })
+      .eq('id', user.id)
+
+    setProfile({ ...profile, avatar_url: null })
+  }
+
   const addSkill = () => {
     if (!skillInput.trim()) return
     if (skills.includes(skillInput)) return
@@ -149,11 +160,20 @@ export default function Profile() {
         <div className="profile-card">
           {/* Avatar */}
           <div
-            className="avatar-box"
+            className={`avatar-box ${!profile.avatar_url ? 'default' : ''}`}
             onClick={() => isEditing && fileInputRef.current.click()}
           >
-            <img src={profile.avatar_url} />
-            {isEditing && <span className="avatar-edit"><img src={Plus}></img></span>}
+          <img
+            className="avatar-img"
+            src={profile.avatar_url ? profile.avatar_url : Userd}
+            alt="Profile"
+          />
+
+            {isEditing && (
+              <span className="avatar-edit">
+                <img className="add" src={Plus} alt="change" />
+              </span>
+            )}
           </div>
 
           {isEditing && (
@@ -164,9 +184,16 @@ export default function Profile() {
                 hidden
                 onChange={(e) => setFile(e.target.files[0])}
               />
+
               {file && (
-                <button className="btn small" onClick={uploadAvatar}>
+                <button className="btn ghost" onClick={uploadAvatar}>
                   Upload Photo
+                </button>
+              )}
+
+              {profile.avatar_url && (
+                <button className="btn ghost" onClick={removeAvatar}>
+                  Remove Photo
                 </button>
               )}
             </>
@@ -183,10 +210,7 @@ export default function Profile() {
                 <Info label="Availability" value={availability} />
                 <Info label="Placement Status" value={placementStatus} />
                 <Info label="Bio" value={bio} />
-                <Info
-                  label="Skills"
-                  value={skills.length ? skills.join(', ') : 'No skills added'}
-                />
+                <Info label="Skills" value={skills.length ? skills.join(', ') : 'No skills added'} />
               </>
             ) : (
               <>
@@ -197,9 +221,9 @@ export default function Profile() {
                   {DOMAIN_OPTIONS.map(d => (
                     <button
                       key={d}
+                      type="button"
                       className={domain === d ? 'domain active' : 'domain'}
                       onClick={() => setDomain(d)}
-                      type="button"
                     >
                       {d}
                     </button>
@@ -232,12 +256,14 @@ export default function Profile() {
                     onChange={e => setSkillInput(e.target.value)}
                     placeholder="Add a skill"
                   />
-                  <button className="btn small" onClick={addSkill}>+</button>
+                  <button className="skill-add-btn" onClick={addSkill}>+</button>
                 </div>
 
                 <div className="skill-list">
                   {skills.map(s => (
-                    <span key={s} onClick={() => removeSkill(s)}>{s} ×</span>
+                    <span key={s} onClick={() => removeSkill(s)}>
+                      {s} ×
+                    </span>
                   ))}
                 </div>
               </>

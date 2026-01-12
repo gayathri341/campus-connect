@@ -1,21 +1,19 @@
 .profile-container {
     max-width: 900px;
     margin: 2.5rem auto;
-    
   }
   
   .profile-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width:35rem;
-    margin-left: 12rem;
+    width:34rem;
+    margin-left:10rem;
   }
   
   .profile-header p {
     color: #64748b;
     margin-top: 4px;
-    
   }
   
   .profile-card {
@@ -24,9 +22,8 @@
     border-radius: 18px;
     padding: 2rem;
     box-shadow: 0 20px 50px rgba(0,0,0,0.08);
-    width:120rem;
-    align-content: center;
-    margin-left: 12rem;
+    margin-left:10rem;
+    width:850px;
   }
   
   .avatar-box {
@@ -42,23 +39,42 @@
     border-radius: 50%;
     object-fit: cover;
   }
+/* ONLY default avatar image */
+.avatar-box.default .avatar-img {
+    opacity: 0.45;
+    background: #e5e7eb;
+    padding: 18px;
+    border-radius: 50%;
+  }
+  
   
   .avatar-edit {
     position: absolute;
-    bottom: -2px;
-    right: 3px;
-    background: rgba(177, 169, 169, 0.567);
-    color: #fff;
-    font-size: 13px;
-    padding: 2px 4px;
+    bottom: 2px;      /* exact corner */
+    right: 2px;       /* exact corner */
+    background:transparent; /* contrast */
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10; 
+    
   }
-  .avatar-edit img{
-    width: 15px;
-    height: 15px;
+  .avatar-edit img {
+    width: 22px;
+    height: 23px;
     object-fit: contain;
+  
+    background: rgba(25, 25, 25, 0.096); /* ✔ bg ONLY for icon */
+    border-radius: 50%;
+    padding: 4px;
   }
+  
+
+  
+  
   .profile-info {
     margin-top: 1.8rem;
   }
@@ -113,6 +129,22 @@
   .skill-row {
     display: flex;
     gap: 0.5rem;
+  }
+  
+  .skill-add-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: #46b3b6;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-top:0.5rem;
+  }
+  
+  .skill-add-btn:hover {
+    background: #4f46e5;
   }
   
   .skill-list span {
