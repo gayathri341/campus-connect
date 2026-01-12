@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar'
 import '../styles/profile.css'
 
 import Plus from "../assets/plus.png"
-import Userd from "../assets/userd.png";
+import Userd from "../assets/userd.png"
 
 const DOMAIN_OPTIONS = ['IT','CSE','ECE','EEE','MECH','CIVIL','CHEM','BIO','OTHER']
 const AVAILABILITY_OPTIONS = ['Available','Busy','Not Available']
@@ -26,8 +26,7 @@ export default function Profile() {
   const [availability, setAvailability] = useState('')
   const [placementStatus, setPlacementStatus] = useState('')
 
-  // avatar logic (UNCHANGED)
-  const [file, setFile] = useState(null)
+  // avatar
   const fileInputRef = useRef(null)
 
   const [saving, setSaving] = useState(false)
@@ -88,14 +87,15 @@ export default function Profile() {
     setIsEditing(false)
   }
 
-  const uploadAvatar = async () => {
-    if (!file || !user) return
+  // ✅ AUTO UPLOAD FUNCTION
+  const uploadAvatar = async (selectedFile) => {
+    if (!selectedFile || !user) return
 
     const filePath = `${user.id}/avatar.png`
 
     await supabase.storage
       .from('avatars')
-      .upload(filePath, file, { upsert: true })
+      .upload(filePath, selectedFile, { upsert: true })
 
     const { data } = supabase.storage
       .from('avatars')
@@ -107,7 +107,6 @@ export default function Profile() {
       .eq('id', user.id)
 
     setProfile({ ...profile, avatar_url: data.publicUrl })
-    setFile(null)
   }
 
   const removeAvatar = async () => {
@@ -136,8 +135,8 @@ export default function Profile() {
     <>
       <Navbar active="profile" />
 
-      <div className="profile-container">
-        <div className="profile-header">
+      <div className="p-container">
+        <div className="p-header">
           <div>
             <h2>My Profile</h2>
             <p>Manage your professional information</p>
@@ -157,17 +156,17 @@ export default function Profile() {
           )}
         </div>
 
-        <div className="profile-card">
+        <div className="p-card">
           {/* Avatar */}
           <div
             className={`avatar-box ${!profile.avatar_url ? 'default' : ''}`}
             onClick={() => isEditing && fileInputRef.current.click()}
           >
-          <img
-            className="avatar-img"
-            src={profile.avatar_url ? profile.avatar_url : Userd}
-            alt="Profile"
-          />
+            <img
+              className="avatar-img"
+              src={profile.avatar_url ? profile.avatar_url : Userd}
+              alt="Profile"
+            />
 
             {isEditing && (
               <span className="avatar-edit">
@@ -176,30 +175,30 @@ export default function Profile() {
             )}
           </div>
 
+          {/* 🔥 AUTO upload on file select */}
           {isEditing && (
             <>
               <input
                 type="file"
                 ref={fileInputRef}
                 hidden
-                onChange={(e) => setFile(e.target.files[0])}
+                accept="image/*"
+                onChange={(e) => {
+                  const selectedFile = e.target.files[0]
+                  if (!selectedFile) return
+                  uploadAvatar(selectedFile)
+                }}
               />
 
-              {file && (
-                <button className="btn ghost" onClick={uploadAvatar}>
-                  Upload Photo
-                </button>
-              )}
-
               {profile.avatar_url && (
-                <button className="btn ghost" onClick={removeAvatar}>
+                <button className="removeb" onClick={removeAvatar}>
                   Remove Photo
                 </button>
               )}
             </>
           )}
 
-          <div className="profile-info">
+          <div className="p-info">
             {!isEditing ? (
               <>
                 <Info label="Full Name" value={name} />

@@ -1,36 +1,37 @@
-.profile-container {
+.p-container {
     max-width: 900px;
     margin: 2.5rem auto;
   }
   
-  .profile-header {
+  .p-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width:34rem;
-    margin-left:10rem;
+    width:39rem;
+    margin-left:11rem;
   }
   
-  .profile-header p {
+  .p-header p {
     color: #64748b;
     margin-top: 4px;
   }
   
-  .profile-card {
+  .p-card {
     margin-top: 1.5rem;
     background: #fff;
     border-radius: 18px;
     padding: 2rem;
     box-shadow: 0 20px 50px rgba(0,0,0,0.08);
     margin-left:10rem;
-    width:850px;
+    width:40rem;
   }
   
   .avatar-box {
-    width: 90px;
-    height: 90px;
+    width: 100px;
+    height: 100px;
     position: relative;
     cursor: pointer;
+    margin-left:15rem;
   }
   
   .avatar-box img {
@@ -38,10 +39,11 @@
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
+    
   }
 /* ONLY default avatar image */
 .avatar-box.default .avatar-img {
-    opacity: 0.45;
+    opacity: 0.5;
     background: #e5e7eb;
     padding: 18px;
     border-radius: 50%;
@@ -67,7 +69,7 @@
     height: 23px;
     object-fit: contain;
   
-    background: rgba(25, 25, 25, 0.096); /* ✔ bg ONLY for icon */
+    background: rgba(215, 209, 209, 0.71); /* ✔ bg ONLY for icon */
     border-radius: 50%;
     padding: 4px;
   }
@@ -75,7 +77,7 @@
 
   
   
-  .profile-info {
+  .p-info {
     margin-top: 1.8rem;
   }
   
@@ -85,19 +87,20 @@
   
   .info-row strong {
     display: block;
-    font-size: 0.85rem;
-    color: #64748b;
+    font-size: 0.95rem;
+    color: #38877c;
   }
   
-  .profile-info label {
+  .p-info label {
     margin-top: 1rem;
     display: block;
     font-weight: 600;
+
   }
   
-  .profile-info input,
-  .profile-info textarea,
-  .profile-info select {
+  .p-info input,
+  .p-card textarea,
+  .p-card select {
     width: 100%;
     margin-top: 0.4rem;
     padding: 0.6rem 0.8rem;
@@ -172,6 +175,21 @@
     background: transparent;
     border: 1px solid #0ea5a4;
     color: #0ea5a4;
+  }
+
+  .removeb{
+    background: transparent;
+    border: 1px solid #0ea5a4;
+    color: #0ea5a4;
+    padding:0.5rem;
+    margin-top:1rem;
+    margin-left:15.2rem;
+    border-radius: 1rem;
+
+  }
+.removeb:hover{
+    background-color:#46b3b6;
+    color:white;
   }
   
   .btn.small {
