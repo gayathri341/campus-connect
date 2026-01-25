@@ -8,6 +8,7 @@ export default function Verification() {
   const [file, setFile] = useState(null)
   const [status, setStatus] = useState(null)
   const [user, setUser] = useState(null)
+  const [documentType, setDocumentType] = useState('id_card') // ✅ NEW
   const navigate = useNavigate()
 
   const fetchVerificationStatus = async (currentUser) => {
@@ -46,7 +47,8 @@ export default function Verification() {
   const uploadDoc = async () => {
     if (!file || !user) return
 
-    const filePath = `${user.id}/proof.pdf`
+    // 🔹 SAME PATH → old doc replaced automatically
+    const filePath = `${user.id}/proof`
 
     const { error: uploadError } = await supabase.storage
       .from('verification-docs')
@@ -60,13 +62,18 @@ export default function Verification() {
       return
     }
 
+    // 🔹 UPSERT → one user, one row
     const { error: dbError } = await supabase
       .from('verification_documents')
-      .insert({
-        user_id: user.id,
-        document_url: filePath,
-        status: 'pending',
-      })
+      .upsert(
+        {
+          user_id: user.id,
+          document_url: filePath,
+          document_type: documentType, // ✅ NEW
+          status: 'pending',
+        },
+        { onConflict: 'user_id' }
+      )
 
     if (dbError) {
       alert('DB error')
@@ -86,9 +93,32 @@ export default function Verification() {
         </h2>
 
         <p className="verify-subtext">
-          Upload your college ID card to confirm that you belong to your college.
+          Upload a valid document to confirm your identity.
           This helps us keep CampusConnect safe and trusted.
         </p>
+
+        {/* 🔘 DOCUMENT TYPE SELECTION */}
+        <div className="doc-type">
+          <label>
+            <input
+              type="radio"
+              value="id_card"
+              checked={documentType === 'id_card'}
+              onChange={() => setDocumentType('id_card')}
+            />
+            Student — Upload College ID
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              value="degree_certificate"
+              checked={documentType === 'degree_certificate'}
+              onChange={() => setDocumentType('degree_certificate')}
+            />
+            Alumni / Senior — Upload Degree Certificate
+          </label>
+        </div>
 
         {/* Status Messages */}
         {status === 'pending' && (
@@ -105,12 +135,11 @@ export default function Verification() {
 
         {!status && (
           <div className="verify-status info">
-            <img src={Doc}></img>
-             Please upload your verification document.
+            <img src={Doc} alt="doc" />
+            Please upload your verification document.
           </div>
         )}
 
-        {/* Upload Section */}
         {(status === null || status === 'pending' || status === 'rejected') && (
           <div className="upload-box">
             <input
@@ -138,7 +167,6 @@ export default function Verification() {
           Verification usually takes 24–48 hours.
         </p>
 
-        {/* Privacy Info */}
         <div className="verify-privacy">
           <p>🔒 Your document is encrypted</p>
           <p>👁️ Used only for college verification</p>
