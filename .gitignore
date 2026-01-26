@@ -1,0 +1,13 @@
+# Environment files
+.env
+Frontend/.env
+
+# Node
+node_modules/
+
+# Editor
+.vscode/
+
+# Supabase local
+supabase/.temp
+supabase/.branches
