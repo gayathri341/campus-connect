@@ -4,16 +4,15 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { createWorker } from "https://esm.sh/tesseract.js@5.0.4"
 
-console.log("OCR Verify Function Started")
-
-// 🔥 CORS HEADERS (VERY IMPORTANT)
+// 🔐 CORS headers
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 }
 
-// ---- KEYWORDS (EDIT ANYTIME) ----
+console.log("OCR Verify Function Started")
+
 const COLLEGE_KEYWORDS = [
   "RMK",
   "RMK ENGINEERING COLLEGE",
@@ -27,7 +26,6 @@ const DEGREE_KEYWORDS = [
   "IT",
 ]
 
-// ---- HELPERS ----
 function normalize(text: string) {
   return text.replace(/\s+/g, " ").trim().toUpperCase()
 }
@@ -38,7 +36,7 @@ function matchKeywords(text: string, keywords: string[]) {
 
 Deno.serve(async (req) => {
 
-  // 🔴 CORS PREFLIGHT (Browser sends OPTIONS first)
+  // ✅ PRE-FLIGHT (MOST IMPORTANT)
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders })
   }
@@ -53,68 +51,53 @@ Deno.serve(async (req) => {
       )
     }
 
-    // ---- Supabase client (SERVICE ROLE) ----
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     )
 
-    // ---- Download document ----
-    const { data: file, error: downloadError } = await supabase
-      .storage
+    const { data: file, error } = await supabase.storage
       .from("verification-docs")
       .download(document_path)
 
-    if (downloadError || !file) {
-      throw new Error("Failed to download document")
-    }
+    if (error || !file) throw new Error("File download failed")
 
     const buffer = new Uint8Array(await file.arrayBuffer())
 
-    // ---- OCR (STABLE FLOW) ----
     const worker = await createWorker()
     await worker.loadLanguage("eng")
     await worker.initialize("eng")
 
-    const ocrResult = await worker.recognize(buffer)
+    const result = await worker.recognize(buffer)
     await worker.terminate()
 
-    const rawText = ocrResult.data.text || ""
-    const confidence = ocrResult.data.confidence ?? 0
+    const rawText = result.data.text || ""
+    const confidence = result.data.confidence ?? 0
     const text = normalize(rawText)
 
-    // ---- FLAGS ----
     const flags: string[] = []
 
-    if (confidence < 60) {
-      flags.push("low_ocr_confidence")
-    }
+    if (confidence < 60) flags.push("low_ocr_confidence")
 
     let matched: string[] = []
 
     if (document_type === "id_card") {
       matched = matchKeywords(text, COLLEGE_KEYWORDS)
-      if (matched.length === 0) {
-        flags.push("college_keywords_missing")
-      }
+      if (matched.length === 0) flags.push("college_keywords_missing")
     }
 
     if (document_type === "degree_certificate") {
       matched = matchKeywords(text, DEGREE_KEYWORDS)
-      if (matched.length < 2) {
-        flags.push("degree_keywords_missing")
-      }
+      if (matched.length < 2) flags.push("degree_keywords_missing")
     }
 
-    // ---- AUTO VERDICT ----
     const auto_verdict =
       flags.length === 0 ? "auto_approved" : "manual_review"
 
     const status =
       auto_verdict === "auto_approved" ? "approved" : "pending"
 
-    // ---- UPDATE DATABASE ----
-    const { error: updateError } = await supabase
+    await supabase
       .from("verification_documents")
       .update({
         ocr_text: rawText,
@@ -124,40 +107,24 @@ Deno.serve(async (req) => {
         status,
       })
       .eq("user_id", user_id)
-      .eq("status", "pending")
-
-    if (updateError) {
-      throw new Error("Failed to update verification_documents")
-    }
 
     return new Response(
       JSON.stringify({
         success: true,
-        auto_verdict,
         status,
-        confidence,
+        auto_verdict,
         flags,
+        confidence,
         matched_keywords: matched,
       }),
-      {
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
-      }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     )
 
   } catch (err) {
-    console.error("OCR error:", err)
+    console.error(err)
     return new Response(
-      JSON.stringify({ error: "OCR verification failed" }),
-      {
-        status: 500,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
-      }
+      JSON.stringify({ error: "OCR failed" }),
+      { status: 500, headers: corsHeaders }
     )
   }
 })
