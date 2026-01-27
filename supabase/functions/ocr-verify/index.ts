@@ -31,7 +31,8 @@ function normalize(text: string) {
 function matchKeywords(text: string, keywords: string[]) {
   return keywords.filter(k => text.includes(k))
 }
-Deno.serve(async (req) => {
+Deno.serve(async (req) => 
+{
 
   // ✅ HANDLE PREFLIGHT
   if (req.method === "OPTIONS") {
@@ -127,5 +128,7 @@ Deno.serve(async (req) => {
       { status: 500, headers: corsHeaders }
     )
   }
-})
+ }
+ )
+
 
