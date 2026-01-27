@@ -6,7 +6,7 @@ import { createWorker } from "https://esm.sh/tesseract.js@5.0.4"
 
 console.log("OCR Verify Function Started")
 
-// ---- KEYWORDS (YOU CAN EDIT LATER) ----
+// ---- KEYWORDS (EDIT ANYTIME) ----
 const COLLEGE_KEYWORDS = [
   "RMK",
   "RMK ENGINEERING COLLEGE",
@@ -20,16 +20,18 @@ const DEGREE_KEYWORDS = [
   "IT",
 ]
 
-// ---- HELPER: keyword check ----
+// ---- HELPERS ----
+function normalize(text: string) {
+  return text.replace(/\s+/g, " ").trim().toUpperCase()
+}
+
 function matchKeywords(text: string, keywords: string[]) {
-  const upper = text.toUpperCase()
-  return keywords.filter(k => upper.includes(k))
+  return keywords.filter(k => text.includes(k))
 }
 
 Deno.serve(async (req) => {
   try {
-    const body = await req.json()
-    const { user_id, document_path, document_type } = body
+    const { user_id, document_path, document_type } = await req.json()
 
     if (!user_id || !document_path || !document_type) {
       return new Response(
@@ -44,7 +46,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     )
 
-    // ---- Download file from Storage ----
+    // ---- Download document ----
     const { data: file, error: downloadError } = await supabase
       .storage
       .from("verification-docs")
@@ -56,28 +58,31 @@ Deno.serve(async (req) => {
 
     const buffer = new Uint8Array(await file.arrayBuffer())
 
-    // ---- OCR using Tesseract ----
-    const worker = await createWorker("eng")
-    const {
-      data: { text, confidence },
-    } = await worker.recognize(buffer)
+    // ---- OCR (STABLE INIT) ----
+    const worker = await createWorker()
+    await worker.loadLanguage("eng")
+    await worker.initialize("eng")
 
+    const ocrResult = await worker.recognize(buffer)
     await worker.terminate()
 
-    // ---- FLAGS & CHECKS ----
+    const rawText = ocrResult.data.text || ""
+    const confidence = ocrResult.data.confidence ?? 0
+
+    const text = normalize(rawText)
+
+    // ---- FLAGS ----
     const flags: string[] = []
 
-    // confidence check
     if (confidence < 60) {
       flags.push("low_ocr_confidence")
     }
 
-    // keyword checks
     let matched: string[] = []
 
     if (document_type === "id_card") {
       matched = matchKeywords(text, COLLEGE_KEYWORDS)
-      if (matched.length < 1) {
+      if (matched.length === 0) {
         flags.push("college_keywords_missing")
       }
     }
@@ -89,20 +94,25 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ---- AUTO VERDICT ----
+    // ---- VERDICT ----
     const auto_verdict =
       flags.length === 0 ? "auto_approved" : "manual_review"
 
-    // ---- UPDATE DATABASE ----
+    const status =
+      auto_verdict === "auto_approved" ? "approved" : "pending"
+
+    // ---- UPDATE DB (only if pending) ----
     const { error: updateError } = await supabase
       .from("verification_documents")
       .update({
-        ocr_text: text,
+        ocr_text: rawText,
         ocr_confidence: confidence,
         flags,
         auto_verdict,
+        status,
       })
       .eq("user_id", user_id)
+      .eq("status", "pending")
 
     if (updateError) {
       throw new Error("Failed to update verification_documents")
@@ -112,15 +122,16 @@ Deno.serve(async (req) => {
       JSON.stringify({
         success: true,
         auto_verdict,
-        flags,
+        status,
         confidence,
+        flags,
         matched_keywords: matched,
       }),
       { headers: { "Content-Type": "application/json" } }
     )
 
   } catch (err) {
-    console.error(err)
+    console.error("OCR error:", err)
     return new Response(
       JSON.stringify({ error: "OCR verification failed" }),
       { status: 500 }
