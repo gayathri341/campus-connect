@@ -3,6 +3,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 console.log("OCR Space Verify Function Started")
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+}
+
+
 const COLLEGE_KEYWORDS = [
   "RMK",
   "RMK ENGINEERING COLLEGE",
@@ -23,13 +31,21 @@ function normalize(text: string) {
 function matchKeywords(text: string, keywords: string[]) {
   return keywords.filter(k => text.includes(k))
 }
-
 Deno.serve(async (req) => {
+
+  // ✅ HANDLE PREFLIGHT
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders })
+  }
+
   try {
     const { user_id, document_path, document_type } = await req.json()
 
     if (!user_id || !document_path || !document_type) {
-      return new Response(JSON.stringify({ error: "Missing fields" }), { status: 400 })
+      return new Response(
+        JSON.stringify({ error: "Missing fields" }),
+        { status: 400, headers: corsHeaders }
+      )
     }
 
     const supabase = createClient(
@@ -37,7 +53,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     )
 
-    // 1️⃣ Download file from storage
+    // ---- download file ----
     const { data: file } = await supabase
       .storage
       .from("verification-docs")
@@ -45,11 +61,10 @@ Deno.serve(async (req) => {
 
     if (!file) throw new Error("File download failed")
 
-    // Convert to base64
     const buffer = new Uint8Array(await file.arrayBuffer())
     const base64 = btoa(String.fromCharCode(...buffer))
 
-    // 2️⃣ Call OCR.Space API
+    // ---- OCR.Space ----
     const ocrRes = await fetch("https://api.ocr.space/parse/image", {
       method: "POST",
       headers: {
@@ -64,32 +79,31 @@ Deno.serve(async (req) => {
 
     const ocrData = await ocrRes.json()
 
-    if (!ocrData.ParsedResults) {
-      throw new Error("OCR failed")
-    }
+    const rawText =
+      ocrData?.ParsedResults?.[0]?.ParsedText ?? ""
 
-    const rawText = ocrData.ParsedResults[0].ParsedText || ""
-    const confidence = 80 // OCR.Space free tier doesn’t give confidence
-
-    const text = normalize(rawText)
+    const confidence = 80
+    const text = rawText.toUpperCase()
 
     const flags: string[] = []
     let matched: string[] = []
 
     if (document_type === "id_card") {
-      matched = matchKeywords(text, COLLEGE_KEYWORDS)
+      matched = COLLEGE_KEYWORDS.filter(k => text.includes(k))
       if (matched.length === 0) flags.push("college_keywords_missing")
     }
 
     if (document_type === "degree_certificate") {
-      matched = matchKeywords(text, DEGREE_KEYWORDS)
+      matched = DEGREE_KEYWORDS.filter(k => text.includes(k))
       if (matched.length < 2) flags.push("degree_keywords_missing")
     }
 
-    const auto_verdict = flags.length === 0 ? "auto_approved" : "manual_review"
-    const status = auto_verdict === "auto_approved" ? "approved" : "pending"
+    const auto_verdict =
+      flags.length === 0 ? "auto_approved" : "manual_review"
 
-    // 3️⃣ Update DB
+    const status =
+      auto_verdict === "auto_approved" ? "approved" : "pending"
+
     await supabase
       .from("verification_documents")
       .update({
@@ -101,12 +115,17 @@ Deno.serve(async (req) => {
       })
       .eq("user_id", user_id)
 
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { "Content-Type": "application/json" },
-    })
+    return new Response(
+      JSON.stringify({ success: true, auto_verdict }),
+      { headers: corsHeaders }
+    )
 
   } catch (err) {
-    console.error(err)
-    return new Response(JSON.stringify({ error: "OCR failed" }), { status: 500 })
+    console.error("OCR ERROR:", err)
+    return new Response(
+      JSON.stringify({ error: "OCR failed" }),
+      { status: 500, headers: corsHeaders }
+    )
   }
 })
+
