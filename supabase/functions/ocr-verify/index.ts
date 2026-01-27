@@ -6,6 +6,13 @@ import { createWorker } from "https://esm.sh/tesseract.js@5.0.4"
 
 console.log("OCR Verify Function Started")
 
+// 🔥 CORS HEADERS (VERY IMPORTANT)
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+}
+
 // ---- KEYWORDS (EDIT ANYTIME) ----
 const COLLEGE_KEYWORDS = [
   "RMK",
@@ -30,13 +37,19 @@ function matchKeywords(text: string, keywords: string[]) {
 }
 
 Deno.serve(async (req) => {
+
+  // 🔴 CORS PREFLIGHT (Browser sends OPTIONS first)
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders })
+  }
+
   try {
     const { user_id, document_path, document_type } = await req.json()
 
     if (!user_id || !document_path || !document_type) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       )
     }
 
@@ -58,7 +71,7 @@ Deno.serve(async (req) => {
 
     const buffer = new Uint8Array(await file.arrayBuffer())
 
-    // ---- OCR (STABLE INIT) ----
+    // ---- OCR (STABLE FLOW) ----
     const worker = await createWorker()
     await worker.loadLanguage("eng")
     await worker.initialize("eng")
@@ -68,7 +81,6 @@ Deno.serve(async (req) => {
 
     const rawText = ocrResult.data.text || ""
     const confidence = ocrResult.data.confidence ?? 0
-
     const text = normalize(rawText)
 
     // ---- FLAGS ----
@@ -94,14 +106,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ---- VERDICT ----
+    // ---- AUTO VERDICT ----
     const auto_verdict =
       flags.length === 0 ? "auto_approved" : "manual_review"
 
     const status =
       auto_verdict === "auto_approved" ? "approved" : "pending"
 
-    // ---- UPDATE DB (only if pending) ----
+    // ---- UPDATE DATABASE ----
     const { error: updateError } = await supabase
       .from("verification_documents")
       .update({
@@ -127,14 +139,25 @@ Deno.serve(async (req) => {
         flags,
         matched_keywords: matched,
       }),
-      { headers: { "Content-Type": "application/json" } }
+      {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+      }
     )
 
   } catch (err) {
     console.error("OCR error:", err)
     return new Response(
       JSON.stringify({ error: "OCR verification failed" }),
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+      }
     )
   }
 })
