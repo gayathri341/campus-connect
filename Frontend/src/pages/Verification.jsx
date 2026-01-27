@@ -84,7 +84,7 @@ export default function Verification() {
 
       if (session?.access_token) {
         await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ocr-verify`,
+          `https://idozeyoqtywgynbhxpfj.supabase.co /functions/v1/ocr-verify`,
           {
             method: 'POST',
             headers: {
