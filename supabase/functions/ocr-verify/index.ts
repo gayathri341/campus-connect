@@ -1,17 +1,7 @@
-// Supabase Edge Runtime types
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
-
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
-import { createWorker } from "https://esm.sh/tesseract.js@5.0.4"
 
-// 🔐 CORS headers
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-}
-
-console.log("OCR Verify Function Started")
+console.log("OCR Space Verify Function Started")
 
 const COLLEGE_KEYWORDS = [
   "RMK",
@@ -35,20 +25,11 @@ function matchKeywords(text: string, keywords: string[]) {
 }
 
 Deno.serve(async (req) => {
-
-  // ✅ PRE-FLIGHT (MOST IMPORTANT)
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders })
-  }
-
   try {
     const { user_id, document_path, document_type } = await req.json()
 
     if (!user_id || !document_path || !document_type) {
-      return new Response(
-        JSON.stringify({ error: "Missing required fields" }),
-        { status: 400, headers: corsHeaders }
-      )
+      return new Response(JSON.stringify({ error: "Missing fields" }), { status: 400 })
     }
 
     const supabase = createClient(
@@ -56,29 +37,43 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     )
 
-    const { data: file, error } = await supabase.storage
+    // 1️⃣ Download file from storage
+    const { data: file } = await supabase
+      .storage
       .from("verification-docs")
       .download(document_path)
 
-    if (error || !file) throw new Error("File download failed")
+    if (!file) throw new Error("File download failed")
 
+    // Convert to base64
     const buffer = new Uint8Array(await file.arrayBuffer())
+    const base64 = btoa(String.fromCharCode(...buffer))
 
-    const worker = await createWorker()
-    await worker.loadLanguage("eng")
-    await worker.initialize("eng")
+    // 2️⃣ Call OCR.Space API
+    const ocrRes = await fetch("https://api.ocr.space/parse/image", {
+      method: "POST",
+      headers: {
+        apikey: Deno.env.get("OCR_SPACE_API_KEY")!,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        base64Image: `data:image/png;base64,${base64}`,
+        language: "eng",
+      }),
+    })
 
-    const result = await worker.recognize(buffer)
-    await worker.terminate()
+    const ocrData = await ocrRes.json()
 
-    const rawText = result.data.text || ""
-    const confidence = result.data.confidence ?? 0
+    if (!ocrData.ParsedResults) {
+      throw new Error("OCR failed")
+    }
+
+    const rawText = ocrData.ParsedResults[0].ParsedText || ""
+    const confidence = 80 // OCR.Space free tier doesn’t give confidence
+
     const text = normalize(rawText)
 
     const flags: string[] = []
-
-    if (confidence < 60) flags.push("low_ocr_confidence")
-
     let matched: string[] = []
 
     if (document_type === "id_card") {
@@ -91,12 +86,10 @@ Deno.serve(async (req) => {
       if (matched.length < 2) flags.push("degree_keywords_missing")
     }
 
-    const auto_verdict =
-      flags.length === 0 ? "auto_approved" : "manual_review"
+    const auto_verdict = flags.length === 0 ? "auto_approved" : "manual_review"
+    const status = auto_verdict === "auto_approved" ? "approved" : "pending"
 
-    const status =
-      auto_verdict === "auto_approved" ? "approved" : "pending"
-
+    // 3️⃣ Update DB
     await supabase
       .from("verification_documents")
       .update({
@@ -108,23 +101,12 @@ Deno.serve(async (req) => {
       })
       .eq("user_id", user_id)
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        status,
-        auto_verdict,
-        flags,
-        confidence,
-        matched_keywords: matched,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    )
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { "Content-Type": "application/json" },
+    })
 
   } catch (err) {
     console.error(err)
-    return new Response(
-      JSON.stringify({ error: "OCR failed" }),
-      { status: 500, headers: corsHeaders }
-    )
+    return new Response(JSON.stringify({ error: "OCR failed" }), { status: 500 })
   }
 })
