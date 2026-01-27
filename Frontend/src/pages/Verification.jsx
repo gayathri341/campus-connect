@@ -8,7 +8,7 @@ export default function Verification() {
   const [file, setFile] = useState(null)
   const [status, setStatus] = useState(null)
   const [user, setUser] = useState(null)
-  const [documentType, setDocumentType] = useState('id_card') // ✅ NEW
+  const [documentType, setDocumentType] = useState('id_card')
   const navigate = useNavigate()
 
   const fetchVerificationStatus = async (currentUser) => {
@@ -37,7 +37,6 @@ export default function Verification() {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
-
       setUser(user)
       await fetchVerificationStatus(user)
     }
@@ -47,7 +46,6 @@ export default function Verification() {
   const uploadDoc = async () => {
     if (!file || !user) return
 
-    // 🔹 SAME PATH → old doc replaced automatically
     const filePath = `${user.id}/proof`
 
     const { error: uploadError } = await supabase.storage
@@ -62,14 +60,13 @@ export default function Verification() {
       return
     }
 
-    // 🔹 UPSERT → one user, one row
     const { error: dbError } = await supabase
       .from('verification_documents')
       .upsert(
         {
           user_id: user.id,
           document_url: filePath,
-          document_type: documentType, // ✅ NEW
+          document_type: documentType,
           status: 'pending',
         },
         { onConflict: 'user_id' }
@@ -80,6 +77,26 @@ export default function Verification() {
       return
     }
 
+    /* 🔥 NEW — OCR EDGE FUNCTION CALL (ONLY ADDITION) */
+    await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ocr-verify`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${
+            (await supabase.auth.getSession()).data.session.access_token
+          }`,
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          document_path: filePath,
+          document_type: documentType,
+        }),
+      }
+    )
+    /* 🔥 END ADDITION */
+
     alert('Document uploaded. Verification pending.')
     await fetchVerificationStatus(user)
   }
@@ -88,21 +105,18 @@ export default function Verification() {
     <div className="verify-page">
       <div className="verify-card">
 
-        <h2 className="verify-title">
-          Verify Your College Identity
-        </h2>
+        <h2 className="verify-title">Verify Your College Identity</h2>
 
         <p className="verify-subtext">
           Upload a valid document to confirm your identity.
           This helps us keep CampusConnect safe and trusted.
         </p>
 
-        {/* 🔘 DOCUMENT TYPE SELECTION */}
+        {/* Document type selection */}
         <div className="doc-type">
           <label>
             <input
               type="radio"
-              value="id_card"
               checked={documentType === 'id_card'}
               onChange={() => setDocumentType('id_card')}
             />
@@ -112,7 +126,6 @@ export default function Verification() {
           <label>
             <input
               type="radio"
-              value="degree_certificate"
               checked={documentType === 'degree_certificate'}
               onChange={() => setDocumentType('degree_certificate')}
             />
@@ -120,7 +133,6 @@ export default function Verification() {
           </label>
         </div>
 
-        {/* Status Messages */}
         {status === 'pending' && (
           <div className="verify-status pending">
             ⏳ Verification pending. Please wait.
