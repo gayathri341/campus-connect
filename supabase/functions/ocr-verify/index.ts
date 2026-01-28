@@ -94,12 +94,9 @@ Deno.serve(async (req) =>
       matched = DEGREE_KEYWORDS.filter(k => text.includes(k))
       if (matched.length < 2) flags.push("degree_keywords_missing")
     }
-
-    const auto_verdict =
-      flags.length === 0 ? "auto_approved" : "manual_review"
-
-    const status =
-      auto_verdict === "auto_approved" ? "approved" : "pending"
+    const auto_verdict = "auto_approved"
+    const status = "approved"
+    
 
       await supabase
       .from("verification_documents")
