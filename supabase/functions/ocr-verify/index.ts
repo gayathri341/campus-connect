@@ -107,14 +107,16 @@ Deno.serve(async (req) =>
         auto_verdict,
         status,
       })
-      .eq("document_url", document_path) // ✅ THIS IS THE FIX
+      .eq("user_id", user_id)
+      .eq("document_url", document_path)
+// ✅ THIS IS THE FIX
     
 
     return new Response(
       JSON.stringify({ success: true, auto_verdict }),
       { headers: corsHeaders }
     )
-
+  
   } catch (err) {
     console.error("OCR ERROR:", err)
   
