@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import { encode as base64Encode } from "https://deno.land/std@0.224.0/encoding/base64.ts"
 
 console.log("OCR Space Verify Function Started")
 
@@ -9,7 +10,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 }
-
 
 const COLLEGE_KEYWORDS = [
   "RMK",
@@ -24,23 +24,23 @@ const DEGREE_KEYWORDS = [
   "IT",
 ]
 
-function normalize(text: string) {
-  return text.replace(/\s+/g, " ").trim().toUpperCase()
-}
-
-function matchKeywords(text: string, keywords: string[]) {
-  return keywords.filter(k => text.includes(k))
-}
-Deno.serve(async (req) => 
-{
-
-  // ✅ HANDLE PREFLIGHT
+Deno.serve(async (req) => {
+  // ✅ CORS PREFLIGHT
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders })
   }
 
   try {
-    const { user_id, document_path, document_type } = await req.json()
+    // ✅ SAFE JSON PARSE
+    const body = await req.json().catch(() => null)
+    if (!body) {
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON body" }),
+        { status: 400, headers: corsHeaders }
+      )
+    }
+
+    const { user_id, document_path, document_type } = body
 
     if (!user_id || !document_path || !document_type) {
       return new Response(
@@ -49,23 +49,27 @@ Deno.serve(async (req) =>
       )
     }
 
+    // ✅ SUPABASE CLIENT
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     )
 
-    // ---- download file ----
-    const { data: file } = await supabase
+    // ✅ DOWNLOAD DOCUMENT
+    const { data: file, error: fileError } = await supabase
       .storage
       .from("verification-docs")
       .download(document_path)
 
-    if (!file) throw new Error("File download failed")
+    if (fileError || !file) {
+      throw new Error("File download failed")
+    }
 
+    // ✅ SAFE BASE64 CONVERSION (FIXED)
     const buffer = new Uint8Array(await file.arrayBuffer())
-    const base64 = btoa(String.fromCharCode(...buffer))
+    const base64 = base64Encode(buffer)
 
-    // ---- OCR.Space ----
+    // ✅ OCR API CALL
     const ocrRes = await fetch("https://api.ocr.space/parse/image", {
       method: "POST",
       headers: {
@@ -78,14 +82,21 @@ Deno.serve(async (req) =>
       }),
     })
 
+    if (!ocrRes.ok) {
+      throw new Error("OCR API request failed")
+    }
+
     const ocrData = await ocrRes.json()
 
-    const rawText =
-      ocrData?.ParsedResults?.[0]?.ParsedText ?? ""
+    if (!ocrData?.ParsedResults?.length) {
+      throw new Error("No text detected from OCR")
+    }
 
-    const confidence = 80
+    const rawText = ocrData.ParsedResults[0].ParsedText || ""
     const text = rawText.toUpperCase()
+    const confidence = 80
 
+    // ✅ KEYWORD VERIFICATION
     const flags: string[] = []
     let matched: string[] = []
 
@@ -105,7 +116,8 @@ Deno.serve(async (req) =>
     const status =
       auto_verdict === "auto_approved" ? "approved" : "pending"
 
-    await supabase
+    // ✅ DB UPDATE (SAFE TARGET)
+    const { error: updateError } = await supabase
       .from("verification_documents")
       .update({
         ocr_text: rawText,
@@ -114,7 +126,11 @@ Deno.serve(async (req) =>
         auto_verdict,
         status,
       })
-      .eq("user_id", user_id)
+      .eq("document_path", document_path)
+
+    if (updateError) {
+      throw new Error("Database update failed")
+    }
 
     return new Response(
       JSON.stringify({ success: true, auto_verdict }),
@@ -123,12 +139,13 @@ Deno.serve(async (req) =>
 
   } catch (err) {
     console.error("OCR ERROR:", err)
+
     return new Response(
-      JSON.stringify({ error: "OCR failed" }),
+      JSON.stringify({
+        error: "OCR failed",
+        message: err instanceof Error ? err.message : "Unknown error",
+      }),
       { status: 500, headers: corsHeaders }
     )
   }
- }
- )
-
-
+})
