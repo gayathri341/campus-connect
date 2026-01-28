@@ -103,7 +103,7 @@ Deno.serve(async (req) =>
     .upsert({
       user_id,
       document_url: document_path,
-      extracted_text: rawText,
+      ocr_text: rawText,
       ocr_confidence: confidence,
       flags,
       auto_verdict,
