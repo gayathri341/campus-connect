@@ -62,21 +62,17 @@ Deno.serve(async (req) =>
 
     if (!file) throw new Error("File download failed")
 
-    const buffer = new Uint8Array(await file.arrayBuffer())
-    const base64 = btoa(String.fromCharCode(...buffer))
-
-    // ---- OCR.Space ----
-    const ocrRes = await fetch("https://api.ocr.space/parse/image", {
-      method: "POST",
-      headers: {
-        apikey: Deno.env.get("OCR_SPACE_API_KEY")!,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        base64Image: `data:image/png;base64,${base64}`,
-        language: "eng",
-      }),
-    })
+      const formData = new FormData()
+      formData.append("file", file, "document.png")
+      formData.append("language", "eng")
+      
+      const ocrRes = await fetch("https://api.ocr.space/parse/image", {
+        method: "POST",
+        headers: {
+          apikey: Deno.env.get("OCR_SPACE_API_KEY")!,
+        },
+        body: formData,
+      })
 
     const ocrData = await ocrRes.json()
 
