@@ -98,17 +98,18 @@ Deno.serve(async (req) =>
     const status = "approved"
     
 
-      await supabase
-      .from("verification_documents")
-      .update({
-        ocr_text: rawText,
-        ocr_confidence: confidence,
-        flags,
-        auto_verdict,
-        status,
-      })
-      .eq("user_id", user_id)
-      .eq("document_url", document_path)
+    await supabase
+    .from("verification_documents")
+    .upsert({
+      user_id,
+      document_url: document_path,
+      ocr_text: rawText,
+      ocr_confidence: confidence,
+      flags,
+      auto_verdict,
+      status,
+    }, { onConflict: "user_id" })
+  
 // ✅ THIS IS THE FIX
     
 
