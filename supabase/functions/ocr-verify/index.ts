@@ -101,7 +101,7 @@ Deno.serve(async (req) =>
     const status =
       auto_verdict === "auto_approved" ? "approved" : "pending"
 
-    await supabase
+      await supabase
       .from("verification_documents")
       .update({
         ocr_text: rawText,
@@ -110,7 +110,8 @@ Deno.serve(async (req) =>
         auto_verdict,
         status,
       })
-      .eq("user_id", user_id)
+      .eq("document_url", document_path) // ✅ THIS IS THE FIX
+    
 
     return new Response(
       JSON.stringify({ success: true, auto_verdict }),
