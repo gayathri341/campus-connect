@@ -123,8 +123,12 @@ Deno.serve(async (req) =>
 
   } catch (err) {
     console.error("OCR ERROR:", err)
+  
     return new Response(
-      JSON.stringify({ error: "OCR failed" }),
+      JSON.stringify({
+        error: "OCR failed",
+        message: err instanceof Error ? err.message : err,
+      }),
       { status: 500, headers: corsHeaders }
     )
   }
