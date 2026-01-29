@@ -55,6 +55,14 @@ Deno.serve(async (req) => {
       throw new Error("File download failed")
     }
 
+    await supabase
+  .from("verification_documents")
+  .upsert({
+    user_id,
+    document_url: document_path,
+    document_type,
+    status: "pending",
+  }, { onConflict: "user_id" })
     /* --------------------------------------------------
        2️⃣ OCR SPACE CALL
     -------------------------------------------------- */
