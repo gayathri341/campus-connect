@@ -44,21 +44,7 @@ Deno.serve(async (req) => {
     )
 
     /* --------------------------------------------------
-       1️⃣ ENSURE ROW EXISTS (MOST IMPORTANT)
-    -------------------------------------------------- */
-    await supabase
-      .from("verification_documents")
-      .upsert({
-        user_id,
-        document_url: document_path,
-        document_type,
-        status: "pending",
-      }, { onConflict: "user_id" })
-
-    console.log("ROW ENSURED", user_id)
-
-    /* --------------------------------------------------
-       2️⃣ DOWNLOAD FILE
+       1️⃣ DOWNLOAD FILE
     -------------------------------------------------- */
     const { data: file } = await supabase
       .storage
@@ -70,7 +56,7 @@ Deno.serve(async (req) => {
     }
 
     /* --------------------------------------------------
-       3️⃣ OCR SPACE CALL
+       2️⃣ OCR SPACE CALL
     -------------------------------------------------- */
     const formData = new FormData()
     formData.append("file", file, "document.png")
@@ -93,7 +79,7 @@ Deno.serve(async (req) => {
     const confidence = 80
 
     /* --------------------------------------------------
-       4️⃣ KEYWORD CHECK
+       3️⃣ KEYWORD CHECK
     -------------------------------------------------- */
     const flags: string[] = []
 
@@ -117,22 +103,24 @@ Deno.serve(async (req) => {
       auto_verdict === "auto_approved" ? "approved" : "pending"
 
     /* --------------------------------------------------
-       5️⃣ UPDATE OCR RESULT
+       4️⃣ SINGLE FINAL DB WRITE (UPSERT)
     -------------------------------------------------- */
-    console.log("BEFORE DB UPDATE", user_id)
+    console.log("BEFORE FINAL DB WRITE", user_id)
 
     await supabase
       .from("verification_documents")
-      .update({
+      .upsert({
+        user_id,
+        document_url: document_path,
+        document_type,
         extracted_text: rawText,
         ocr_confidence: confidence,
         flags,
         auto_verdict,
         status,
-      })
-      .eq("user_id", user_id)
+      }, { onConflict: "user_id" })
 
-    console.log("AFTER DB UPDATE", user_id)
+    console.log("AFTER FINAL DB WRITE", user_id)
 
     return new Response(
       JSON.stringify({ success: true, auto_verdict }),
