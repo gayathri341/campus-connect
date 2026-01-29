@@ -109,7 +109,7 @@ Deno.serve(async (req) => {
     ) {
       flags.push("college_keywords_missing")
     }
-    
+  }
     
 
     if (document_type === "degree_certificate") {
