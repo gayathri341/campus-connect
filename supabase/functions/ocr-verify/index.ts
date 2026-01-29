@@ -39,12 +39,7 @@ Deno.serve(async (req) =>
     return new Response("ok", { headers: corsHeaders })
   }
 
-  await supabase
-  .from("verification_documents")
-  .update({
-    status: "edge_function_reached"
-  })
-  .eq("user_id", user_id)
+
   try {
     const { user_id, document_path, document_type } = await req.json()
 
