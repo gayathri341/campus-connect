@@ -10,7 +10,6 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 }
 
-
 const COLLEGE_KEYWORDS = [
   "RMK",
   "RMK ENGINEERING COLLEGE",
@@ -24,21 +23,10 @@ const DEGREE_KEYWORDS = [
   "IT",
 ]
 
-function normalize(text: string) {
-  return text.replace(/\s+/g, " ").trim().toUpperCase()
-}
-
-function matchKeywords(text: string, keywords: string[]) {
-  return keywords.filter(k => text.includes(k))
-}
-Deno.serve(async (req) => 
-{
-
-  // ✅ HANDLE PREFLIGHT
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders })
   }
-
 
   try {
     const { user_id, document_path, document_type } = await req.json()
@@ -55,79 +43,105 @@ Deno.serve(async (req) =>
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     )
 
-    // ---- download file ----
+    /* --------------------------------------------------
+       1️⃣ ENSURE ROW EXISTS (MOST IMPORTANT)
+    -------------------------------------------------- */
+    await supabase
+      .from("verification_documents")
+      .upsert({
+        user_id,
+        document_url: document_path,
+        document_type,
+        status: "pending",
+      }, { onConflict: "user_id" })
+
+    console.log("ROW ENSURED", user_id)
+
+    /* --------------------------------------------------
+       2️⃣ DOWNLOAD FILE
+    -------------------------------------------------- */
     const { data: file } = await supabase
       .storage
       .from("verification-docs")
       .download(document_path)
 
-    if (!file) throw new Error("File download failed")
+    if (!file) {
+      throw new Error("File download failed")
+    }
 
-      const formData = new FormData()
-      formData.append("file", file, "document.png")
-      formData.append("language", "eng")
-      
-      const ocrRes = await fetch("https://api.ocr.space/parse/image", {
-        method: "POST",
-        headers: {
-          apikey: Deno.env.get("OCR_SPACE_API_KEY")!,
-        },
-        body: formData,
-      })
+    /* --------------------------------------------------
+       3️⃣ OCR SPACE CALL
+    -------------------------------------------------- */
+    const formData = new FormData()
+    formData.append("file", file, "document.png")
+    formData.append("language", "eng")
+
+    const ocrRes = await fetch("https://api.ocr.space/parse/image", {
+      method: "POST",
+      headers: {
+        apikey: Deno.env.get("OCR_SPACE_API_KEY")!,
+      },
+      body: formData,
+    })
 
     const ocrData = await ocrRes.json()
 
     const rawText =
       ocrData?.ParsedResults?.[0]?.ParsedText ?? ""
 
-    const confidence = 80
     const text = rawText.toUpperCase()
+    const confidence = 80
 
+    /* --------------------------------------------------
+       4️⃣ KEYWORD CHECK
+    -------------------------------------------------- */
     const flags: string[] = []
-    let matched: string[] = []
 
     if (document_type === "id_card") {
-      matched = COLLEGE_KEYWORDS.filter(k => text.includes(k))
-      if (matched.length === 0) flags.push("college_keywords_missing")
+      if (!COLLEGE_KEYWORDS.some(k => text.includes(k))) {
+        flags.push("college_keywords_missing")
+      }
     }
 
     if (document_type === "degree_certificate") {
-      matched = DEGREE_KEYWORDS.filter(k => text.includes(k))
-      if (matched.length < 2) flags.push("degree_keywords_missing")
+      const matches = DEGREE_KEYWORDS.filter(k => text.includes(k))
+      if (matches.length < 2) {
+        flags.push("degree_keywords_missing")
+      }
     }
-const auto_verdict =
-  flags.length === 0 ? "auto_approved" : "manual_review"
 
-const status =
-  auto_verdict === "auto_approved" ? "approved" : "pending"
+    const auto_verdict =
+      flags.length === 0 ? "auto_approved" : "manual_review"
 
-    
-  console.log("BEFORE DB UPDATE", user_id)
+    const status =
+      auto_verdict === "auto_approved" ? "approved" : "pending"
+
+    /* --------------------------------------------------
+       5️⃣ UPDATE OCR RESULT
+    -------------------------------------------------- */
+    console.log("BEFORE DB UPDATE", user_id)
 
     await supabase
-    .from("verification_documents")
-    .upsert({
-      user_id,
-      document_url: document_path,
-      extracted_text: rawText,
-      ocr_confidence: confidence,
-      flags,
-      auto_verdict,
-      status,
-    }, { onConflict: "user_id" })
-  
-// ✅ THIS IS THE FIX
-console.log("AFTER DB UPDATE", user_id)
+      .from("verification_documents")
+      .update({
+        extracted_text: rawText,
+        ocr_confidence: confidence,
+        flags,
+        auto_verdict,
+        status,
+      })
+      .eq("user_id", user_id)
 
+    console.log("AFTER DB UPDATE", user_id)
 
     return new Response(
       JSON.stringify({ success: true, auto_verdict }),
       { headers: corsHeaders }
     )
-  
+
   } catch (err) {
     console.error("OCR ERROR:", err)
-  
+
     return new Response(
       JSON.stringify({
         error: "OCR failed",
@@ -136,7 +150,4 @@ console.log("AFTER DB UPDATE", user_id)
       { status: 500, headers: corsHeaders }
     )
   }
- }
- )
-
-
+})
