@@ -92,10 +92,14 @@ Deno.serve(async (req) => {
     const flags: string[] = []
 
     if (document_type === "id_card") {
-      if (!COLLEGE_KEYWORDS.some(k => text.includes(k))) {
+      // remove spaces, dots, symbols → OCR variations handle
+      const normalized = text.replace(/[^A-Z]/g, "")
+    
+      if (!normalized.includes("RMK")) {
         flags.push("college_keywords_missing")
       }
     }
+    
 
     if (document_type === "degree_certificate") {
       const matches = DEGREE_KEYWORDS.filter(k => text.includes(k))
