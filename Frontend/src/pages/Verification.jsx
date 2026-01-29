@@ -60,6 +60,19 @@ export default function Verification() {
       return
     }
 
+    /* 1.5️⃣ CREATE verification row IF NOT EXISTS */
+await supabase
+.from('verification_documents')
+.insert({
+  user_id: user.id,
+  document_url: filePath,
+  document_type: documentType,
+  status: 'pending',
+})
+.onConflict('user_id')
+.ignore()
+
+
     /* 2️⃣ ONLY trigger edge function (NO DB WRITE HERE) */
     const { data: { session } } = await supabase.auth.getSession()
 
