@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
         document_type,
         extracted_text: rawText,
         ocr_confidence: confidence,
-        flags,
+        flags: flags.length ? flags : [],
         auto_verdict,
         status,
       }, { onConflict: "user_id" })
