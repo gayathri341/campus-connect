@@ -12,8 +12,10 @@ const corsHeaders = {
 
 const COLLEGE_KEYWORDS = [
   "RMK",
-  "RMK ENGINEERING COLLEGE",
+  "ENGINEERING COLLEGE",
+  "AUTONOMOUS",
   "R.M.K",
+  "RMK ENGINEERING",
 ]
 
 const DEGREE_KEYWORDS = [
@@ -67,8 +69,13 @@ Deno.serve(async (req) => {
        2️⃣ OCR SPACE CALL
     -------------------------------------------------- */
     const formData = new FormData()
-    formData.append("file", file, "document.png")
+    formData.append("file", file)
     formData.append("language", "eng")
+    formData.append("isOverlayRequired", "false")
+    formData.append("OCREngine", "2")        // 🔥 better for scanned docs
+    formData.append("scale", "true")         // 🔥 upscale image
+    formData.append("detectOrientation", "true")
+    
 
     const ocrRes = await fetch("https://api.ocr.space/parse/image", {
       method: "POST",
