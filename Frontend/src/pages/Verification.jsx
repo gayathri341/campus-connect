@@ -8,7 +8,7 @@ export default function Verification() {
   const [file, setFile] = useState(null)
   const [status, setStatus] = useState(null)
   const [user, setUser] = useState(null)
-  const [documentType] = useState('id_card')
+  const [documentType, setDocumentType] = useState('id_card')
   const navigate = useNavigate()
 
   const fetchVerificationStatus = async (currentUser) => {
@@ -60,7 +60,7 @@ export default function Verification() {
       return
     }
 
-    /* 2️⃣ ONLY trigger edge function */
+    /* 2️⃣ ONLY trigger edge function (NO DB WRITE HERE) */
     const { data: { session } } = await supabase.auth.getSession()
 
     if (session?.access_token) {
@@ -91,9 +91,40 @@ export default function Verification() {
 
         <h2 className="verify-title">Verify Your College Identity</h2>
 
+        <p className="verify-subtext">
+          Upload a valid document to confirm your identity.
+          This helps us keep CampusConnect safe and trusted.
+        </p>
+
+        <div className="doc-type">
+          <label>
+            <input
+              type="radio"
+              checked={documentType === 'id_card'}
+              onChange={() => setDocumentType('id_card')}
+            />
+            Student — Upload College ID
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              checked={documentType === 'degree_certificate'}
+              onChange={() => setDocumentType('degree_certificate')}
+            />
+            Alumni / Senior — Upload Degree Certificate
+          </label>
+        </div>
+
         {status === 'pending' && (
           <div className="verify-status pending">
             ⏳ Verification pending. Please wait.
+          </div>
+        )}
+
+        {status === 'rejected' && (
+          <div className="verify-status rejected">
+            ❌ Verification rejected. Please upload again.
           </div>
         )}
 
@@ -104,15 +135,38 @@ export default function Verification() {
           </div>
         )}
 
-        <input
-          type="file"
-          accept=".jpg,.png"
-          onChange={e => setFile(e.target.files[0])}
-        />
+        {(status === null || status === 'pending' || status === 'rejected') && (
+          <div className="upload-box">
+            <input
+              type="file"
+              accept=".pdf,.jpg,.png"
+              onChange={e => setFile(e.target.files[0])}
+            />
 
-        <button onClick={uploadDoc} disabled={!file}>
-          Upload Document
-        </button>
+            <p className="upload-help">
+              Accepted formats: PDF, JPG, PNG<br />
+              Max size: 2 MB
+            </p>
+
+            <button
+              className="upload-btn"
+              onClick={uploadDoc}
+              disabled={!file}
+            >
+              Upload Document
+            </button>
+          </div>
+        )}
+
+        <p className="verify-note">
+          Verification usually takes 24–48 hours.
+        </p>
+
+        <div className="verify-privacy">
+          <p>🔒 Your document is encrypted</p>
+          <p>👁️ Used only for college verification</p>
+          <p>🗑️ Deleted after verification</p>
+        </div>
 
       </div>
     </div>
