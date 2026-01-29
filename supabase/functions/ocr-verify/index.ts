@@ -107,7 +107,7 @@ const status =
     .upsert({
       user_id,
       document_url: document_path,
-      ocr_text: rawText,
+      extracted_text: rawText,
       ocr_confidence: confidence,
       flags,
       auto_verdict,
