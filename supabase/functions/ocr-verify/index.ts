@@ -102,6 +102,7 @@ const status =
   auto_verdict === "auto_approved" ? "approved" : "pending"
 
     
+  console.log("BEFORE DB UPDATE", user_id)
 
     await supabase
     .from("verification_documents")
@@ -116,7 +117,8 @@ const status =
     }, { onConflict: "user_id" })
   
 // ✅ THIS IS THE FIX
-    
+console.log("AFTER DB UPDATE", user_id)
+
 
     return new Response(
       JSON.stringify({ success: true, auto_verdict }),
