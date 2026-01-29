@@ -60,25 +60,19 @@ export default function Verification() {
       return
     }
 
-    /* 2️⃣ Upsert DB row */
-    const { error: dbError } = await supabase
+    /* 2️⃣ INSERT ROW ONLY IF NOT EXISTS (IMPORTANT FIX) */
+    await supabase
       .from('verification_documents')
-      .upsert(
-        {
-          user_id: user.id,
-          document_url: filePath,
-          document_type: documentType,
-          status: 'pending',
-        },
-        { onConflict: 'user_id' }
-      )
+      .insert({
+        user_id: user.id,
+        document_url: filePath,
+        document_type: documentType,
+        status: 'pending',
+      })
+      .onConflict('user_id')
+      .ignore()
 
-    if (dbError) {
-      alert('DB error')
-      return
-    }
-
-    /* 🔥 3️⃣ EDGE FUNCTION TRIGGER (STEP 1 — CORRECT) */
+    /* 3️⃣ EDGE FUNCTION TRIGGER */
     try {
       const { data: { session } } = await supabase.auth.getSession()
 
@@ -100,9 +94,8 @@ export default function Verification() {
         )
       }
     } catch (err) {
-      console.warn('OCR trigger failed (safe to ignore):', err)
+      console.warn('OCR trigger failed:', err)
     }
-    /* 🔥 END STEP 1 */
 
     alert('Document uploaded. Verification pending.')
     await fetchVerificationStatus(user)
@@ -119,7 +112,6 @@ export default function Verification() {
           This helps us keep CampusConnect safe and trusted.
         </p>
 
-        {/* Document type */}
         <div className="doc-type">
           <label>
             <input
@@ -163,12 +155,12 @@ export default function Verification() {
           <div className="upload-box">
             <input
               type="file"
-              accept=".pdf,.jpg,.png"
+              accept=".jpg,.png"
               onChange={e => setFile(e.target.files[0])}
             />
 
             <p className="upload-help">
-              Accepted formats: PDF, JPG, PNG<br />
+              Accepted formats: JPG, PNG<br />
               Max size: 2 MB
             </p>
 
@@ -185,12 +177,6 @@ export default function Verification() {
         <p className="verify-note">
           Verification usually takes 24–48 hours.
         </p>
-
-        <div className="verify-privacy">
-          <p>🔒 Your document is encrypted</p>
-          <p>👁️ Used only for college verification</p>
-          <p>🗑️ Deleted after verification</p>
-        </div>
 
       </div>
     </div>
