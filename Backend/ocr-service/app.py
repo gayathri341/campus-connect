@@ -3,8 +3,8 @@ import cv2
 import pytesseract
 from supabase import create_client
 
-SUPABASE_URL = "VITE_SUPABASE_URL"
-SERVICE_KEY = "SERVICE_ROLE_KEY"
+SUPABASE_URL = "https://idozeyoqtywgynbhxpfj.supabase.co"
+SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlkb3pleW9xdHl3Z3luYmh4cGZqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NjA2MDAyOSwiZXhwIjoyMDgxNjM2MDI5fQ.azyojBdBvO28a1YQ74fYSuABBsDwmWWhPOeUZ_hHTuE"
 
 supabase = create_client(SUPABASE_URL, SERVICE_KEY)
 
