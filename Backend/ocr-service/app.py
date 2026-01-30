@@ -2,17 +2,28 @@ from flask import Flask, request, jsonify
 import cv2
 import pytesseract
 from supabase import create_client
+from dotenv import load_dotenv
+import os
 
-SUPABASE_URL = "https://idozeyoqtywgynbhxpfj.supabase.co"
-SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlkb3pleW9xdHl3Z3luYmh4cGZqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NjA2MDAyOSwiZXhwIjoyMDgxNjM2MDI5fQ.azyojBdBvO28a1YQ74fYSuABBsDwmWWhPOeUZ_hHTuE"
+load_dotenv()
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SERVICE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+
 
 supabase = create_client(SUPABASE_URL, SERVICE_KEY)
 
 app = Flask(__name__)
 
+@app.route("/")
+def home():
+    return "OCR service running"
+
 @app.route("/ocr-verify", methods=["POST"])
 def ocr_verify():
-    data = request.json
+
+    data = request.get_json(force=True)
+
     user_id = data["user_id"]
     image_path = data["local_path"]  # downloaded file
 
@@ -40,3 +51,5 @@ def ocr_verify():
 
 if __name__ == "__main__":
     app.run(port=5000)
+
+
