@@ -47,7 +47,7 @@ export default function Verification() {
 
     const filePath = `${user.id}/proof`
 
-    /* 1️⃣ Upload file */
+    /* 1️⃣ Upload file to Supabase Storage */
     const { error } = await supabase.storage
       .from('verification-docs')
       .upload(filePath, file, {
@@ -60,28 +60,18 @@ export default function Verification() {
       return
     }
 
-    
-
-    /* 2️⃣ ONLY trigger edge function (NO DB WRITE HERE) */
-    const { data: { session } } = await supabase.auth.getSession()
-
-    if (session?.access_token) {
-      await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ocr-verify`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            user_id: user.id,
-            document_path: filePath,
-            document_type: documentType,
-          }),
-        }
-      )
-    }
+    /* 2️⃣ CALL PYTHON OCR SERVICE (STEP-4 CHANGE ONLY) */
+    await fetch("http://localhost:5000/ocr-verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: user.id,
+        document_path: filePath,
+        document_type: documentType,
+      }),
+    })
 
     alert('Document uploaded. Verification pending.')
     await fetchVerificationStatus(user)
