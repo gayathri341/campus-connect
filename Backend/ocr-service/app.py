@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS   
 import cv2
 import pytesseract
 from supabase import create_client
@@ -18,6 +19,7 @@ pytesseract.pytesseract.tesseract_cmd = TESSERACT_CMD
 supabase = create_client(SUPABASE_URL, SERVICE_KEY)
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route("/")
 def home():
