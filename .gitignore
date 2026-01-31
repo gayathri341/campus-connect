@@ -11,3 +11,6 @@ node_modules/
 # Supabase local
 supabase/.temp
 supabase/.branches
+
+.env
+__pycache__/
