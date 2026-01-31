@@ -66,12 +66,15 @@ def ocr_verify():
     status = "approved" if auto_verdict == "approved" else "pending"
 
     # ---- UPDATE verification_documents ----
-    supabase.table("verification_documents").update({
+    supabase.table("verification_documents").upsert({
+        "user_id": user_id,
+        "document_type": "id_card",
         "extracted_text": text,
         "flags": flags,
         "auto_verdict": auto_verdict,
         "status": status
-    }).eq("user_id", user_id).execute()
+     }, on_conflict="user_id").execute()
+
 
     # ---- AUTO VERIFY PROFILE ----
     if status == "approved":
