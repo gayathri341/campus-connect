@@ -61,8 +61,8 @@ def ocr_verify():
     if "RMK" not in text and "ENGINEERING COLLEGE" not in text:
         flags.append("college_keywords_missing")
 
-    auto_verdict = "auto_approved" if not flags else "manual_review"
-    status = "approved" if auto_verdict == "auto_approved" else "pending"
+    auto_verdict = "approved" if not flags else "manual_review"
+    status = "approved" if auto_verdict == "approved" else "pending"
 
     # ---------- STEP 3: UPSERT DOCUMENT ROW ----------
     supabase.table("verification_documents").upsert({
