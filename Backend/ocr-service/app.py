@@ -68,6 +68,7 @@ def ocr_verify():
     supabase.table("verification_documents").upsert({
         "user_id": user_id,
         "document_type": document_type,
+        "document_url": document_path, 
         "extracted_text": text,
         "flags": flags,
         "auto_verdict": auto_verdict,
