@@ -68,8 +68,8 @@ export default function Verification() {
       },
       body: JSON.stringify({
         user_id: user.id,
-        document_path: filePath,
-        document_type: documentType,
+        document_path: filePath,   // ✅ Supabase storage path
+        document_type: documentType
       }),
     })
 
