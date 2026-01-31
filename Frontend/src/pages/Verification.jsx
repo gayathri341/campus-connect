@@ -61,7 +61,7 @@ export default function Verification() {
     }
 
     /* 2️⃣ CALL PYTHON OCR SERVICE (STEP-4 CHANGE ONLY) */
-    await fetch("http://localhost:5000/ocr-verify", {
+    await fetch("https://campus-connect-v04k.onrender.com/ocr-verify", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
