@@ -1,6 +1,7 @@
 flask
-pytesseract
 opencv-python
-Pillow
+pytesseract
 supabase
 python-dotenv
+
+
