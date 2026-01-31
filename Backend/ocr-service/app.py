@@ -5,6 +5,7 @@ from supabase import create_client
 from dotenv import load_dotenv
 import os
 
+pytesseract.pytesseract.tesseract_cmd = os.getenv("TESSERACT_CMD")
 load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
