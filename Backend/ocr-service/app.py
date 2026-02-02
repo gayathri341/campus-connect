@@ -79,7 +79,7 @@ def ocr_verify():
     if status == "approved":
         supabase.table("profiles").update({
             "is_verified": True
-        }).eq("id", user_id).execute()
+        }).eq("user_id", user_id).execute()
 
     return jsonify({
         "success": True,
