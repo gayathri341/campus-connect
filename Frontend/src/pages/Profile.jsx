@@ -40,7 +40,7 @@ export default function Profile() {
       const { data } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user.id)
+        .eq('user.id', user.id)
         .single()
 
       if (data) {
@@ -79,7 +79,7 @@ export default function Profile() {
         placement_status: placementStatus,
         updated_at: new Date(),
       })
-      .eq('id', user.id)
+      .eq('user.id', user.id)
 
     setSaving(false)
     if (error) return alert('Save failed')
@@ -104,7 +104,7 @@ export default function Profile() {
     await supabase
       .from('profiles')
       .update({ avatar_url: data.publicUrl })
-      .eq('id', user.id)
+      .eq('user.id', user.id)
 
     setProfile({ ...profile, avatar_url: data.publicUrl })
   }
@@ -113,7 +113,7 @@ export default function Profile() {
     await supabase
       .from('profiles')
       .update({ avatar_url: null })
-      .eq('id', user.id)
+      .eq('user.id', user.id)
 
     setProfile({ ...profile, avatar_url: null })
   }
