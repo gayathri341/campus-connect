@@ -18,6 +18,11 @@ export default function Signup() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          name: name,   // 👈 THIS IS CRITICAL
+        }
+      }
     })
 
     if (error) {
@@ -28,10 +33,11 @@ export default function Signup() {
     // 🔥 CREATE PROFILE ROW IMMEDIATELY (with name)
     if (data?.user) {
       await supabase.from('profiles').insert({
-        id: data.user.id,
-        name: name,           // 👈 stored properly
+        user_id: data.user.id,                    // ✅ correct mapping
+        name: data.user.user_metadata?.name || '', // ✅ guaranteed value
         is_verified: false,
       })
+      
     }
 
     alert('Signup success. Please login.')

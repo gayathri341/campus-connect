@@ -15,7 +15,7 @@ export default function Verification() {
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_verified')
-      .eq('id', currentUser.id)
+      .eq('user_id', currentUser.id)
       .single()
 
     if (profile?.is_verified) {
