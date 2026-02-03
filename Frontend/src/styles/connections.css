@@ -1,0 +1,111 @@
+.ccn-container {
+    padding: 2rem;
+  }
+  
+  .ccn-sub {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+  }
+  
+  .ccn-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .ccn-tabs button {
+    border: none;
+    background: #f1f5f9;
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .ccn-tabs button.active {
+    background: #0ea5a4;
+    color: white;
+  }
+  
+  .ccn-tabs span {
+    margin-left: 6px;
+    background: white;
+    color: #0ea5a4;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+  }
+  
+  .ccn-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  
+  .ccn-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    width: 260px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+  }
+  
+  .ccn-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #e6f7f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+  }
+  
+  .ccn-tag {
+    background: #e6f7f5;
+    color: #0ea5a4;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+  }
+  
+  .ccn-message-btn {
+    width: 100%;
+    margin-top: 1rem;
+    background: #0ea5a4;
+    color: white;
+    border: none;
+    padding: 0.6rem;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  
+  .ccn-actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+  
+  .ccn-accept {
+    flex: 1;
+    background: #16a34a;
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 8px;
+  }
+  
+  .ccn-reject {
+    flex: 1;
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 8px;
+  }
+  
+  .ccn-empty {
+    color: #64748b;
+  }
+  
