@@ -3,55 +3,91 @@ import { supabase } from '../supabase'
 import Navbar from '../components/Navbar'
 import '../styles/connections.css'
 
+
 export default function Connections() {
   const [activeTab, setActiveTab] = useState('connections')
   const [currentUserId, setCurrentUserId] = useState(null)
   const [connections, setConnections] = useState([])
   const [requests, setRequests] = useState([])
 
-  useEffect(() => {
-    const loadConnections = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      setCurrentUserId(user.id)
-
-      // accepted connections
+  /* ============================
+     LOAD CONNECTIONS
+     ============================ */
+     const fetchConnections = async (userId) => {
       const { data: accepted } = await supabase
         .from('connections')
         .select(`
           id,
           sender_id,
           receiver_id,
-          profiles!connections_sender_id_fkey(name, domain, college, company)
+          sender:profiles!connections_sender_user_fkey(
+            user_id,
+            name,
+            domain,
+            college,
+            company,
+            avatar_url
+          ),
+          receiver:profiles!connections_receiver_user_fkey(
+            user_id,
+            name,
+            domain,
+            college,
+            company,
+            avatar_url
+          )
         `)
         .eq('status', 'accepted')
-        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-
-      // pending requests (receiver side)
+        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+    
       const { data: pending } = await supabase
         .from('connections')
         .select(`
           id,
           sender_id,
-          profiles!connections_sender_id_fkey(name, domain, college, company)
+          sender:profiles!connections_sender_user_fkey(
+            user_id,
+            name,
+            domain,
+            college,
+            company,
+            avatar_url
+          )
         `)
-        .eq('receiver_id', user.id)
+        .eq('receiver_id', userId)
         .eq('status', 'pending')
-
+    
       setConnections(accepted || [])
       setRequests(pending || [])
     }
+    
 
-    loadConnections()
-  }, [])
+  /* ============================
+     CALL ON LOAD
+     ============================ */
+     useEffect(() => {
+      const init = async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+    
+        setCurrentUserId(user.id)
+        await fetchConnections(user.id)
+      }
+    
+      init()
+    }, [])
+    
 
+  /* ============================
+     ACCEPT / REJECT
+     ============================ */
   const acceptRequest = async (id) => {
     await supabase
       .from('connections')
       .update({ status: 'accepted' })
       .eq('id', id)
 
-    location.reload()
+      fetchConnections(currentUserId)
   }
 
   const rejectRequest = async (id) => {
@@ -60,7 +96,7 @@ export default function Connections() {
       .update({ status: 'rejected' })
       .eq('id', id)
 
-    location.reload()
+      fetchConnections(currentUserId)
   }
 
   return (
@@ -87,7 +123,9 @@ export default function Connections() {
           </button>
         </div>
 
-        {/* MY CONNECTIONS */}
+        {/* ============================
+           MY CONNECTIONS
+           ============================ */}
         {activeTab === 'connections' && (
           <div className="ccn-grid">
             {connections.length === 0 && (
@@ -95,22 +133,22 @@ export default function Connections() {
             )}
 
             {connections.map(c => {
-              const other =
-                c.sender_id === currentUserId
-                  ? c.profiles
-                  : c.profiles
+              const otherUser =
+                c.sender_id === currentUserId ? c.receiver : c.sender
+
+              if (!otherUser) return null
 
               return (
                 <div key={c.id} className="ccn-card">
                   <div className="ccn-avatar">
-                    {other?.name?.charAt(0)}
+                    {otherUser.name ? otherUser.name.charAt(0) : '?'}
                   </div>
 
-                  <h4>{other?.name}</h4>
-                  <span className="ccn-tag">{other?.domain}</span>
+                  <h4>{otherUser.name}</h4>
+                  <span className="ccn-tag">{otherUser.domain}</span>
 
-                  <p>{other?.college}</p>
-                  <p>{other?.company}</p>
+                  <p>{otherUser.college}</p>
+                  <p>{otherUser.company || '-'}</p>
 
                   <button className="ccn-message-btn">
                     Message
@@ -121,7 +159,9 @@ export default function Connections() {
           </div>
         )}
 
-        {/* REQUESTS */}
+        {/* ============================
+           REQUESTS
+           ============================ */}
         {activeTab === 'requests' && (
           <div className="ccn-grid">
             {requests.length === 0 && (
@@ -131,14 +171,14 @@ export default function Connections() {
             {requests.map(r => (
               <div key={r.id} className="ccn-card">
                 <div className="ccn-avatar">
-                  {r.profiles?.name?.charAt(0)}
+                  {r.sender?.name ? r.sender.name.charAt(0) : '?'}
                 </div>
 
-                <h4>{r.profiles?.name}</h4>
-                <span className="ccn-tag">{r.profiles?.domain}</span>
+                <h4>{r.sender?.name}</h4>
+                <span className="ccn-tag">{r.sender?.domain}</span>
 
-                <p>{r.profiles?.college}</p>
-                <p>{r.profiles?.company}</p>
+                <p>{r.sender?.college}</p>
+                <p>{r.sender?.company || '-'}</p>
 
                 <div className="ccn-actions">
                   <button
