@@ -48,7 +48,7 @@ navigate('/dashboard')
     <div className="auth-layout">
       {/* LEFT SIDE */}
       <div className="auth-left">
-      <h1 className="brand-title clickable" onClick={() => navigate('/')}> CampusConnect </h1>
+      <h1 className="brand-title clickable" onClick={() => navigate('/')}> PlaceMent </h1>
         <p className="brand-subtitle">Your professional network starts here</p>
   
         <div className="feature-card">

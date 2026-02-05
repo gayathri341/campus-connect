@@ -27,8 +27,9 @@ export default function Landing() {
       <header className="landing-header">
         
         <div className="logo">
-        <img src={logo} alt="CampusConnect" className="logo-img" />
-          <span>PlaceMent</span>
+        <img src={logo} alt="PlaceMent" className="logo-img" />
+          <span>PlaceMent
+          </span>
         </div>
   {/* 🔥 NEW NAV LINKS (red marked) */}
      <nav className="nav-links">
@@ -83,7 +84,7 @@ export default function Landing() {
             className="primary-btn large"
             onClick={() => navigate('/login')}
           >
-            Join CampusConnect →
+            Join PlaceMent →
           </button>
 
           <button
@@ -168,7 +169,7 @@ export default function Landing() {
       {/* ===== HOW STUDENTS USE SECTION ===== */}
 <section className="howuse-section" id="how-it-works">
   <h2 className="howuse-title">
-    How Students Use <span>CampusConnect</span>
+    How Students Use <span>PlaceMent</span>
   </h2>
   
   <div className="howuse-layout">
@@ -376,7 +377,7 @@ export default function Landing() {
       Access shared placement resources and real-world experiences.
       Build meaningful connections that support your career journey.”
       <br />
-      <span className="cta-author">– CampusConnect</span>
+      <span className="cta-author">– PlaceMent</span>
     </p>
 
     <button
@@ -405,7 +406,7 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="landing-footer">
-        © 2026 CampusConnect. Built with ❤️ for students.
+        © 2026 PlaceMent. Built with ❤️ for students.
       </footer>
     </div>
   );

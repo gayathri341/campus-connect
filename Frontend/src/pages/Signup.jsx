@@ -48,7 +48,7 @@ export default function Signup() {
     <div className="auth-layout">
       {/* LEFT SIDE */}
       <div className="auth-left">
-      <h1 className="brand-title clickable" onClick={() => navigate('/')}> CampusConnect </h1>
+      <h1 className="brand-title clickable" onClick={() => navigate('/')}>PlaceMent </h1>
         <p className="brand-subtitle">
           Your professional network starts here
         </p>
@@ -76,7 +76,7 @@ export default function Signup() {
         <div className="auth-card">
           <h2>Create account</h2>
           <p className="auth-subtitle">
-            Start your journey with CampusConnect
+            Start your journey with PlaceMent
           </p>
 
           {/* FULL NAME */}
