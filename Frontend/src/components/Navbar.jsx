@@ -19,7 +19,7 @@ export default function Navbar() {
       <div className="nav-left">
         <div className="brand">
            <img src={logo} alt="CampusConnect" className="brand-img" />
-          <span>CampusConnect</span>
+          <span>PlaceMent</span>
         </div>
 
         <nav className="nav-links">

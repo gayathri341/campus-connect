@@ -28,7 +28,7 @@ export default function Landing() {
         
         <div className="logo">
         <img src={logo} alt="CampusConnect" className="logo-img" />
-          <span>CampusConnect</span>
+          <span>PlaceMent</span>
         </div>
   {/* 🔥 NEW NAV LINKS (red marked) */}
      <nav className="nav-links">
