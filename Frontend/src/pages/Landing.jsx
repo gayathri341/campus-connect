@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import '../styles/landing.css'
-import logo from '../assets/logo.svg'
+import logo from '../assets/newlogo.png'
 import GroupStudyIcon from "../assets/groupstudysession.svg";
 import Professional from "../assets/professionalnetworking.svg";
 import SafeCommunity from "../assets/safecommunity.svg";

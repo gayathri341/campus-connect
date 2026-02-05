@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import '../styles/navbar.css'
-import logo from '../assets/logo.svg'
+import logo from '../assets/newlogo.png'
 import Userd from "../assets/userd.png";
 import Logout from "../assets/logout.png";
 import Ring from "../assets/ringing.png";
