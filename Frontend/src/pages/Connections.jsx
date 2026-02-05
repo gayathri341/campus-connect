@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
 import Navbar from '../components/Navbar'
@@ -5,10 +6,18 @@ import '../styles/connections.css'
 
 
 export default function Connections() {
-  const [activeTab, setActiveTab] = useState('connections')
+  const location = useLocation()
+
+  const [activeTab, setActiveTab] = useState(
+    location.state?.tab === 'requests' ? 'requests' : 'connections'
+  )
+  
   const [currentUserId, setCurrentUserId] = useState(null)
   const [connections, setConnections] = useState([])
   const [requests, setRequests] = useState([])
+
+
+ 
 
   /* ============================
      LOAD CONNECTIONS
