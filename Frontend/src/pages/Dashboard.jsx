@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
 import Navbar from '../components/Navbar'
 import '../styles/dashboard.css'
+import { MdPeopleOutline, MdDescription } from "react-icons/md"
+
 
 export default function Dashboard() {
   const [users, setUsers] = useState([])
@@ -85,16 +87,31 @@ export default function Dashboard() {
 
       <div className="dashboard-container">
         <div className="stats-row">
-          <div className="stat-card">
-            <p className="stat-label">Connections</p>
-            <h2>0</h2>
+          {/* Connections */}
+          <div className="stat-card-new">
+            <div className="stat-icon-wrap connections-bg">
+              <MdPeopleOutline className="stat-icon-new" />
+            </div>
+
+            <div className="stat-content">
+              <p className="stat-label-new">Connections</p>
+              <h2 className="stat-value-new">0</h2>
+            </div>
           </div>
 
-          <div className="stat-card">
-            <p className="stat-label">Resources</p>
-            <h2>Coming Soon</h2>
+          {/* Resources */}
+          <div className="stat-card-new">
+            <div className="stat-icon-wrap resources-bg">
+              <MdDescription className="stat-icon-new" />
+            </div>
+
+            <div className="stat-content">
+              <p className="stat-label-new">Resources</p>
+              <h2 className="stat-value-new">Coming Soon</h2>
+            </div>
           </div>
         </div>
+
 
         <div className="discover-card">
           <h3>Discover People</h3>
