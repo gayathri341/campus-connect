@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
 import Navbar from '../components/Navbar'
 import '../styles/dashboard.css'
-import { MdPeopleOutline, MdDescription } from "react-icons/md"
+import { MdPeopleOutline, MdDescription,MdSchool, MdBusiness, MdCheck, MdPersonOff } from "react-icons/md"
 
 
 export default function Dashboard() {
@@ -95,7 +95,7 @@ export default function Dashboard() {
 
             <div className="stat-content">
               <p className="stat-label-new">Connections</p>
-              <h2 className="stat-value-new">0</h2>
+              <h5 className="stat-value-new">0</h5>
             </div>
           </div>
 
@@ -107,14 +107,16 @@ export default function Dashboard() {
 
             <div className="stat-content">
               <p className="stat-label-new">Resources</p>
-              <h2 className="stat-value-new">Coming Soon</h2>
+              <h5 className="stat-value-new">Coming Soon</h5>
             </div>
           </div>
         </div>
 
-
         <div className="discover-card">
-          <h3>Discover People</h3>
+          <div className="discover-header">
+            <MdPeopleOutline className="discover-icon" />
+            <h3 className="discover-title">Discover People</h3>
+          </div>
 
           <input
             className="search-input"
@@ -133,60 +135,75 @@ export default function Dashboard() {
               </button>
             ))}
           </div>
-
-          <div className="cc-users-grid">
-            {filteredUsers.map(user => {
-              const status = getConnectionStatus(user.user_id)
-
-              let buttonText = 'Connect'
-              let disabled = false
-
-              if (status === 'pending') {
-                buttonText = 'Requested'
-                disabled = true
-              }
-
-              if (status === 'accepted') {
-                buttonText = 'Connected'
-                disabled = true
-              }
-
-              return (
-                <div key={user.user_id} className="cc-user-card">
-                  <div className="cc-user-header">
-                    <div className="cc-avatar">
-                      {user.avatar_url ? (
-                        <img src={user.avatar_url} alt={user.name} />
-                      ) : (
-                        <span>{user.name?.charAt(0)}</span>
-                      )}
-                    </div>
-
-                    <div>
-                      <h4>{user.name}</h4>
-                      <span className="cc-domain-tag">{user.domain}</span>
-                    </div>
-                  </div>
-
-                  <p className="cc-college">{user.college}</p>
-                  <p className="cc-company">{user.company}</p>
-
-                  <button
-                    className="cc-connect-btn"
-                    disabled={disabled}
-                    onClick={() => sendRequest(user.user_id)}
-                  >
-                    {buttonText}
-                  </button>
-                </div>
-              )
-            })}
-
-            {filteredUsers.length === 0 && (
-              <p className="cc-empty">No users found</p>
-            )}
-          </div>
         </div>
+
+        <div className="cc-users-grid">
+        {filteredUsers.map(user => {
+          const status = getConnectionStatus(user.user_id)
+
+          let buttonText = 'Connect'
+          let disabled = false
+
+          if (status === 'pending') {
+            buttonText = 'Requested'
+            disabled = true
+          }
+
+          if (status === 'accepted') {
+            buttonText = 'Connected'
+            disabled = true
+          }
+
+          return (
+            <div key={user.user_id} className="cc-user-card">
+              <div className="cc-user-header">
+                <div className="cc-avatar">
+                  {user.avatar_url ? (
+                    <img src={user.avatar_url} alt={user.name} />
+                  ) : (
+                    <span className="cc-avatar-letter">
+                      {user.name?.charAt(0)}
+                    </span>
+                  )}
+                </div>
+
+                <div className="cc-user-meta">
+                  <h4 className="cc-user-name">{user.name}</h4>
+                  <span className="cc-domain-tag">{user.domain}</span>
+                </div>
+              </div>
+
+              <div className="cc-info-row">
+                <MdSchool className="cc-info-icon" />
+                <p className="cc-college">{user.college}</p>
+              </div>
+
+              <div className="cc-info-row">
+                <MdBusiness className="cc-info-icon" />
+                <p className="cc-company">{user.company}</p>
+              </div>
+
+              <button
+                className={`cc-connect-btn ${status === 'accepted' ? 'connected' : ''}`}
+                disabled={disabled}
+                onClick={() => sendRequest(user.user_id)}
+              >
+                {status === 'accepted' && <MdCheck className="cc-check-icon" />}
+                {buttonText}
+              </button>
+            </div>
+          )
+        })}
+
+        {filteredUsers.length === 0 && (
+          <div className="cc-empty-state">
+            <MdPersonOff className="cc-empty-icon" />
+            <p className="cc-empty-text">No users found</p>
+          </div>
+        )}
+
+      </div>
+
       </div>
     </>
   )
