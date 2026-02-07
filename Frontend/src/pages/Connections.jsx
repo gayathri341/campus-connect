@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
 import Navbar from '../components/Navbar'
 import '../styles/connections.css'
+import { MdSchool, MdBusiness, MdChatBubbleOutline, MdPersonOff, MdCheck, MdClose, MdPeopleOutline, MdPersonAddAlt } from "react-icons/md";
+
 
 
 export default function Connections() {
@@ -35,6 +37,7 @@ export default function Connections() {
             domain,
             college,
             company,
+            batch,
             avatar_url
           ),
           receiver:profiles!connections_receiver_user_fkey(
@@ -43,6 +46,7 @@ export default function Connections() {
             domain,
             college,
             company,
+            batch,
             avatar_url
           )
         `)
@@ -60,6 +64,7 @@ export default function Connections() {
             domain,
             college,
             company,
+            batch,
             avatar_url
           )
         `)
@@ -118,27 +123,35 @@ export default function Connections() {
 
         <div className="ccn-tabs">
           <button
-            className={activeTab === 'connections' ? 'active' : ''}
+            className={`ccn-tab-btn ${activeTab === 'connections' ? 'active' : ''}`}
             onClick={() => setActiveTab('connections')}
           >
-            My Connections <span>{connections.length}</span>
+            <MdPeopleOutline className="ccn-tab-icon" />
+            <span className="ccn-tab-text">My Connections</span>
+            <span className="ccn-tab-count">{connections.length}</span>
           </button>
 
           <button
-            className={activeTab === 'requests' ? 'active' : ''}
+            className={`ccn-tab-btn ${activeTab === 'requests' ? 'active' : ''}`}
             onClick={() => setActiveTab('requests')}
           >
-            Requests <span>{requests.length}</span>
+            <MdPersonAddAlt className="ccn-tab-icon" />
+            <span className="ccn-tab-text">Requests</span>
+            <span className="ccn-tab-count">{requests.length}</span>
           </button>
         </div>
+
 
         {/* ============================
            MY CONNECTIONS
            ============================ */}
-        {activeTab === 'connections' && (
+       {activeTab === 'connections' && (
           <div className="ccn-grid">
             {connections.length === 0 && (
-              <p className="ccn-empty">No connections yet</p>
+              <div className="ccn-empty-state">
+                <MdPersonOff className="ccn-empty-icon" />
+                <p className="ccn-empty-text">No connections yet</p>
+              </div>
             )}
 
             {connections.map(c => {
@@ -149,17 +162,34 @@ export default function Connections() {
 
               return (
                 <div key={c.id} className="ccn-card">
-                  <div className="ccn-avatar">
-                    {otherUser.name ? otherUser.name.charAt(0) : '?'}
+                  <div className="ccn-header">
+                    <div className="ccn-avatar">
+                      {otherUser.name ? otherUser.name.charAt(0) : '?'}
+                    </div>
+
+                    <div className="ccn-user-meta">
+                      <h4 className="ccn-user-name">{otherUser.name}</h4>
+                      <span className="ccn-tag">{otherUser.domain}</span>
+                    </div>
                   </div>
 
-                  <h4>{otherUser.name}</h4>
-                  <span className="ccn-tag">{otherUser.domain}</span>
+                  <div className="ccn-info-row">
+                    <MdSchool className="ccn-info-icon" />
+                    <p className="ccn-college">{otherUser.college}</p>
+                  </div>
 
-                  <p>{otherUser.college}</p>
-                  <p>{otherUser.company || '-'}</p>
+                  <div className="ccn-info-row">
+                    <MdBusiness className="ccn-info-icon" />
+                    <p className="ccn-company">{otherUser.company || '-'}</p>
+                  </div>
+
+                  <div className="ccn-info-row">
+                    <MdPeopleOutline className="ccn-info-icon" />
+                    <p className="ccn-college">{otherUser.batch}</p>
+                  </div>
 
                   <button className="ccn-message-btn">
+                    <MdChatBubbleOutline className="ccn-msg-icon" />
                     Message
                   </button>
                 </div>
@@ -168,46 +198,70 @@ export default function Connections() {
           </div>
         )}
 
+
         {/* ============================
            REQUESTS
            ============================ */}
         {activeTab === 'requests' && (
-          <div className="ccn-grid">
-            {requests.length === 0 && (
-              <p className="ccn-empty">No pending requests</p>
-            )}
+        <div className="ccn-grid">
+          {requests.length === 0 && (
+            <div className="ccn-empty-state">
+              <MdPersonOff className="ccn-empty-icon" />
+              <p className="ccn-empty-text">No pending requests</p>
+              <p className="ccn-empty-text">You'll see connection requests from other users here</p>
+            </div>
+          )}
 
-            {requests.map(r => (
-              <div key={r.id} className="ccn-card">
+          {requests.map(r => (
+            <div key={r.id} className="ccn-card">
+              <div className="ccn-header">
                 <div className="ccn-avatar">
                   {r.sender?.name ? r.sender.name.charAt(0) : '?'}
                 </div>
 
-                <h4>{r.sender?.name}</h4>
-                <span className="ccn-tag">{r.sender?.domain}</span>
-
-                <p>{r.sender?.college}</p>
-                <p>{r.sender?.company || '-'}</p>
-
-                <div className="ccn-actions">
-                  <button
-                    className="ccn-accept"
-                    onClick={() => acceptRequest(r.id)}
-                  >
-                    Accept
-                  </button>
-
-                  <button
-                    className="ccn-reject"
-                    onClick={() => rejectRequest(r.id)}
-                  >
-                    Reject
-                  </button>
+                <div className="ccn-user-meta">
+                  <h4 className="ccn-user-name">{r.sender?.name}</h4>
+                  <span className="ccn-tag">{r.sender?.domain}</span>
                 </div>
               </div>
-            ))}
-          </div>
+
+              <div className="ccn-info-row">
+                <MdSchool className="ccn-info-icon" />
+                <p className="ccn-college">{r.sender?.college}</p>
+              </div>
+
+              <div className="ccn-info-row">
+                <MdBusiness className="ccn-info-icon" />
+                <p className="ccn-company">{r.sender?.company || '-'}</p>
+              </div>
+
+              <div className="ccn-info-row">
+                <MdPeopleOutline className="ccn-info-icon" />
+                <p className="ccn-college">{r.sender?.batch}</p>
+              </div>
+
+              <div className="ccn-actions">
+                <button
+                  className="ccn-accept"
+                  onClick={() => acceptRequest(r.id)}
+                >
+                  <MdCheck className="ccn-action-icon" />
+                  Accept
+                </button>
+
+                <button
+                  className="ccn-reject"
+                  onClick={() => rejectRequest(r.id)}
+                >
+                  <MdClose className="ccn-action-icon" />
+                  Reject
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
         )}
+
       </div>
     </>
   )

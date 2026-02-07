@@ -21,7 +21,7 @@ export default function Dashboard() {
       // 🔹 fetch verified users
       const { data: usersData } = await supabase
         .from('profiles')
-        .select('user_id, name, domain, college, company, avatar_url')
+        .select('user_id, name, domain, college, company,batch, avatar_url')
         .eq('is_verified', true)
 
       if (usersData) {
@@ -181,6 +181,11 @@ export default function Dashboard() {
               <div className="cc-info-row">
                 <MdBusiness className="cc-info-icon" />
                 <p className="cc-company">{user.company}</p>
+              </div>
+
+              <div className="cc-info-row">
+                <MdPeopleOutline className="cc-info-icon" />
+                <p className="cc-college">{user.batch}</p>
               </div>
 
               <button
