@@ -1024,67 +1024,194 @@
 .hero-right .profile-card2,
 .hero-right .filters-card {
   box-shadow: 0 1.875rem 3.75rem rgba(10, 79, 64, 0.574); /* 30px 60px */
+  transform-origin: center;
+}/* ========================= */
+/* RESPONSIVE FIXES (FINAL) */
+/* ========================= */
+
+/* ========================= */
+/* COMPACT DESKTOP (scale, don't break) */
+/* ========================= */
+@media (max-width: 1279px) {
+
+  /* Reduce font sizes proportionally */
+  .hero h1 {
+    font-size: clamp(2.2rem, 3vw, 3rem);
+  }
+
+  .subtitle {
+    font-size: clamp(0.9rem, 1.1vw, 1rem);
+  }
+
+  /* Keep two-column layout */
+  .hero-layout {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  /* Scale cards but KEEP overlap */
+  .profile-card,
+  .profile-card1,
+  .profile-card2 {
+    scale: 0.9;
+  }
+
+  /* Fix get-started text cut */
+  .steps-title,
+  .step-item {
+    max-width: 100%;
+  }
+
+  .step-item {
+    margin-left: 0;
+  }
 }
 
+/* ========================= */
+/* TABLET & BELOW (break layout) */
+/* ========================= */
+@media (max-width: 768px) {
 
-/* ============================= */
-/* RESPONSIVE FIX – CORE */
-/* ============================= */
-
-@media (max-width: 1280px) {
-
-  /* Hero layout stack */
+  /* Now stack layout */
   .hero-layout {
     flex-direction: column;
     align-items: center;
   }
 
-  /* Remove forced right push */
+  .hero-left {
+    max-width: 100%;
+    margin-top: 2rem;
+  }
+
   .hero-right {
     transform: none;
     height: auto;
+    width: 100%;
   }
 
-  /* Reset all floating transforms */
-  .profile-float,
+  /* Kill overlap completely */
   .profile-card,
   .profile-card1,
   .profile-card2 {
-    transform: none !important;
-  }
-
-  /* Cards should shrink properly */
-  .profile-card,
-  .profile-card1,
-  .profile-card2 {
+    transform: none;
+    scale: 1;
     min-width: 100%;
     max-width: 100%;
+    margin-bottom: 1.5rem;
+    transition: none;
   }
 
-  /* Filters should flow normally */
+  /* Filters move below */
   .filters-card {
     position: static;
     transform: none;
+    width: 100%;
     margin-top: 1rem;
+  }
+
+  /* Features: horizontal scroll, soft overlap */
+  .features-track {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .features-card {
+    scroll-snap-align: center;
+    margin-left: -2rem;
+    min-width: 16rem;
+  }
+
+  /* Steps clean-up */
+  .step-number {
+    display: none;
   }
 }
 
 
-@media (max-width: 768px) {
+@media (max-width: 320px) {
 
-  .hero-left {
-    max-width: 100%;
+  /* Typography shrink */
+  .hero h1 {
+    font-size: 1.7rem;
+    line-height: 1.2;
   }
 
-  .cta-layout,
-  .howuse-layout {
+  .subtitle {
+    font-size: 0.85rem;
+  }
+
+  /* Layout split vertically */
+  .hero-layout {
     flex-direction: column;
-    gap: 2rem;
   }
 
+  /* Cards stack but overlap slightly */
+  .profile-card,
+  .profile-card1,
+  .profile-card2 {
+    transform: none;
+    margin-top: -1rem;
+    scale: 0.95;
+  }
+
+  /* Steps full width */
   .step-item {
     width: 100%;
-    margin-left: 0;
+  }
+
+  /* Feature cards horizontal */
+  .features-track {
+    overflow-x: auto;
+    gap: 1rem;
+  }
+
+  .features-card {
+    min-width: 14rem;
+  }
+
+  /* Diagrams move down */
+  .hero-right {
+    order: 2;
+    margin-top: 2rem;
+  }
+}
+
+@media (max-width: 375px) {
+
+  .hero h1 {
+    font-size: 1.9rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .hero-layout {
+    flex-direction: column;
+  }
+
+  /* Cards overlap neatly */
+  .profile-card {
+    transform: translateY(0);
+  }
+
+  .profile-card1 {
+    transform: translateY(-1rem);
+  }
+
+  .profile-card2 {
+    transform: translateY(-2rem);
+  }
+
+  /* Horizontal scroll with center focus */
+  .features-track {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .features-card {
+    scroll-snap-align: center;
+    min-width: 15rem;
   }
 
   .step-number {
@@ -1093,7 +1220,56 @@
 }
 
 
-/* OPTIONAL – font scaling */
+@media (max-width: 425px) {
+
+  .hero h1 {
+    font-size: 2.1rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+
+  /* Vertical layout */
+  .hero-layout {
+    flex-direction: column;
+  }
+
+  /* Structured overlap */
+  .profile-card {
+    transform: translateY(0);
+  }
+
+  .profile-card1 {
+    transform: translateY(-1.2rem);
+  }
+
+  .profile-card2 {
+    transform: translateY(-2.4rem);
+  }
+
+  /* Features soft overlap */
+  .features-card {
+    margin-left: -1.5rem;
+    min-width: 16rem;
+  }
+
+  /* Priya card comes after steps */
+  .howuse-card {
+    margin-top: 2rem;
+  }
+
+  /* Diagram moves below content */
+  .hero-right {
+    margin-top: 3rem;
+  }
+}
+
+
+
+/* ========================= */
+/* FLUID TYPOGRAPHY */
+/* ========================= */
 html {
   font-size: clamp(14px, 1vw + 10px, 16px);
 }
