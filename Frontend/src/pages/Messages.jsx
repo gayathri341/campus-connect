@@ -1,76 +1,203 @@
-import { useEffect, useState, useCallback } from "react";
-import { supabase } from "../supabaseClient";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { supabase } from "../supabase";
 import Navbar from "../components/Navbar";
+import "../styles/messages.css";
 
 export default function Messages() {
   const [user, setUser] = useState(null);
-  const [receiverId, setReceiverId] = useState("");
+  const [connections, setConnections] = useState([]);
+  const [receiver, setReceiver] = useState(null);
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
+  const [banned, setBanned] = useState(false);
 
-  // Get logged in user
+  const bottomRef = useRef(null);
+
+  // Get logged user
   useEffect(() => {
     const getUser = async () => {
       const { data } = await supabase.auth.getUser();
       setUser(data.user);
     };
-
     getUser();
   }, []);
 
-  // Fetch chat history
-  const loadMessages = useCallback(async () => {
-    if (!user || !receiverId) return;
+  // -------------------------
+  // STEP 2: Set user ONLINE
+  // -------------------------
+  useEffect(() => {
+    if (!user) return;
+
+    const setOnline = async () => {
+      await supabase
+        .from("profiles")
+        .update({ online: true })
+        .eq("user_id", user.id);
+    };
+
+    setOnline();
+  }, [user]);
+
+  // -------------------------
+  // STEP 3: Set OFFLINE when leaving
+  // -------------------------
+  useEffect(() => {
+    const setOffline = async () => {
+      if (!user) return;
   
+      await supabase
+        .from("profiles")
+        .update({ online: false })
+        .eq("user_id", user.id);
+    };
+  
+    const handleVisibility = () => {
+      if (document.hidden) {
+        setOffline();
+      }
+    };
+  
+    window.addEventListener("beforeunload", setOffline);
+    document.addEventListener("visibilitychange", handleVisibility);
+  
+    return () => {
+      window.removeEventListener("beforeunload", setOffline);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [user]);
+
+  // Check ban status
+  const checkBan = useCallback(async () => {
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("user_moderation")
+      .select("*")
+      .eq("user_id", user.id)
+      .single();
+
+    if (data && data.banned_until && new Date(data.banned_until) > new Date()) {
+      setBanned(true);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    // eslint-disable-next-line
+    checkBan();
+  }, [checkBan]);
+
+  // -------------------------
+  // STEP 4: Load connections WITH ONLINE
+  // -------------------------
+  const loadConnections = useCallback(async () => {
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("connections")
+      .select(`
+        sender_id,
+        receiver_id,
+        sender:sender_id(name,domain,online),
+        receiver:receiver_id(name,domain,online)
+      `)
+      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+      .eq("status", "accepted");
+
+    const users =
+      data?.map((c) => {
+        if (c.sender_id === user.id) {
+          return {
+            id: c.receiver_id,
+            name: c.receiver?.name || "User",
+            dept: c.receiver?.domain || "Dept",
+            online: c.receiver?.online || false
+          };
+        } else {
+          return {
+            id: c.sender_id,
+            name: c.sender?.name || "User",
+            dept: c.sender?.domain || "Dept",
+            online: c.sender?.online || false
+          };
+        }
+      }) || [];
+
+    setConnections(users);
+  }, [user]);
+
+  useEffect(() => {
+    // eslint-disable-next-line
+    loadConnections();
+  }, [loadConnections]);
+
+  useEffect(() => {
+    if (!user) return;
+  
+    const interval = setInterval(() => {
+      loadConnections();
+    }, 4000); // every 4 seconds
+  
+    return () => clearInterval(interval);
+  }, [user, loadConnections]);
+
+  // Load messages
+  const loadMessages = useCallback(async () => {
+    if (!receiver || !user) return;
+
     const { data } = await supabase
       .from("messages")
       .select("*")
       .or(
-        `and(sender_id.eq.${user.id},receiver_id.eq.${receiverId}),
-         and(sender_id.eq.${receiverId},receiver_id.eq.${user.id})`
+        `and(sender_id.eq.${user.id},receiver_id.eq.${receiver}),and(sender_id.eq.${receiver},receiver_id.eq.${user.id})`
       )
-      .order("created_at", { ascending: true });
-  
+      .order("created_at");
+
     setMessages(data || []);
-  }, [user, receiverId]);
+  }, [receiver, user]);
 
-  
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // eslint-disable-next-line
     loadMessages();
-  }, [user, receiverId, loadMessages]);
+  }, [loadMessages]);
 
-  // Realtime listener
+  // Auto scroll
   useEffect(() => {
-    if (!user) return; 
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // Realtime messages
+  useEffect(() => {
+    if (!user) return;
+
     const channel = supabase
-      .channel("chat-room")
+      .channel("chat")
       .on(
         "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-        },
+        { event: "INSERT", schema: "public", table: "messages" },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new]);
+          const msg = payload.new;
+
+          if (
+            (msg.sender_id === user.id && msg.receiver_id === receiver) ||
+            (msg.sender_id === receiver && msg.receiver_id === user.id)
+          ) {
+            setMessages((prev) => [...prev, msg]);
+          }
         }
       )
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user]);
+    return () => supabase.removeChannel(channel);
+  }, [user, receiver]);
 
   // Send message
   const sendMessage = async () => {
-    if (!text || !receiverId) return;
+    if (!text || !receiver || banned) return;
 
     await supabase.from("messages").insert([
       {
         sender_id: user.id,
-        receiver_id: receiverId,
+        receiver_id: receiver,
         message: text,
       },
     ]);
@@ -78,47 +205,95 @@ export default function Messages() {
     setText("");
   };
 
+  const formatTime = (time) => {
+    return new Date(time).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const selectedUser = connections.find((u) => u.id === receiver);
+
   return (
     <>
       <Navbar />
 
-      <div style={{ padding: "2rem" }}>
-        <h2>Messages</h2>
+      <div className="chat-container">
 
-        <input
-          placeholder="Receiver User ID"
-          value={receiverId}
-          onChange={(e) => setReceiverId(e.target.value)}
-          style={{ width: "300px", marginBottom: "1rem" }}
-        />
+        {/* LEFT SIDEBAR */}
+        <div className="chat-sidebar">
+          <h3>Messages</h3>
 
-        <div
-          style={{
-            border: "1px solid gray",
-            height: "300px",
-            overflowY: "scroll",
-            padding: "1rem",
-            marginBottom: "1rem",
-          }}
-        >
-          {messages.map((msg) => (
-            <div key={msg.id}>
-              <b>{msg.sender_id === user?.id ? "Me" : "Them"}:</b>{" "}
-              {msg.message}
+          {connections.map((u) => (
+            <div
+              key={u.id}
+              className={`chat-user ${receiver === u.id ? "active" : ""}`}
+              onClick={() => setReceiver(u.id)}
+            >
+            <div className="avatar">
+              {u.name[0]}
+              {u.online && <span className="online-dot"></span>}
+            </div>
+
+              <div>
+                <div className="username">{u.name}</div>
+                <div className="dept">{u.dept}</div>
+              </div>
             </div>
           ))}
         </div>
 
-        <input
-          placeholder="Type message"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          style={{ width: "300px" }}
-        />
+        {/* CHAT AREA */}
+        <div className="chat-main">
 
-        <button onClick={sendMessage} style={{ marginLeft: "10px" }}>
-          Send
-        </button>
+          {!receiver && (
+            <div className="empty-chat">
+              Select a user to start chatting
+            </div>
+          )}
+
+          {receiver && (
+            <>
+              <div className="chat-header">
+                {selectedUser?.name}
+              </div>
+
+              <div className="chat-messages">
+                {messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={
+                      msg.sender_id === user?.id
+                        ? "message me"
+                        : "message other"
+                    }
+                  >
+                    <div className="msg-text">{msg.message}</div>
+                    <div className="time">{formatTime(msg.created_at)}</div>
+                  </div>
+                ))}
+
+                <div ref={bottomRef}></div>
+              </div>
+
+              {!banned ? (
+                <div className="chat-input">
+                  <textarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="Type a message..."
+                    rows="2"
+                  />
+                  <button onClick={sendMessage}>➤</button>
+                </div>
+              ) : (
+                <div className="banned">
+                  Messaging disabled due to abusive behaviour
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </>
   );
