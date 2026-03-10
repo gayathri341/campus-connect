@@ -15,6 +15,8 @@ export default function Messages() {
 
   const bottomRef = useRef(null);
 
+ 
+
   // Get logged user
   useEffect(() => {
     const getUser = async () => {
@@ -23,42 +25,26 @@ export default function Messages() {
     };
     getUser();
   }, []);
+// -------------------------
+// Update last_seen (presence heartbeat)
+// -------------------------
+useEffect(() => {
+  if (!user) return;
 
-  // -------------------------
-  // Set user ONLINE
-  // -------------------------
-  useEffect(() => {
-    if (!user) return;
+  const updatePresence = async () => {
+    await supabase
+      .from("profiles")
+      .update({ last_seen: new Date().toISOString() })
+      .eq("user_id", user.id);
+  };
 
-    const setOnline = async () => {
-      await supabase
-        .from("profiles")
-        .update({ online: true })
-        .eq("user_id", user.id);
-    };
+  updatePresence();
 
-    setOnline();
-  }, [user]);
+  const interval = setInterval(updatePresence, 15000);
 
-  // -------------------------
-  // Set OFFLINE when leaving
-  // -------------------------
-  useEffect(() => {
-    const setOffline = async () => {
-      if (!user) return;
+  return () => clearInterval(interval);
+}, [user]);
 
-      await supabase
-        .from("profiles")
-        .update({ online: false })
-        .eq("user_id", user.id);
-    };
-
-    window.addEventListener("pagehide", setOffline);
-
-    return () => {
-      window.removeEventListener("pagehide", setOffline);
-    };
-  }, [user]);
 
   // -------------------------
   // Check ban status
@@ -70,7 +56,7 @@ export default function Messages() {
       .from("user_moderation")
       .select("*")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle()
 
     if (data && data.banned_until && new Date(data.banned_until) > new Date()) {
       setBanned(true);
@@ -86,38 +72,67 @@ export default function Messages() {
   // -------------------------
   const loadConnections = useCallback(async () => {
     if (!user) return;
-
+  
     const { data } = await supabase
       .from("connections")
       .select(`
         sender_id,
         receiver_id,
-        sender:sender_id(name,domain,online),
-        receiver:receiver_id(name,domain,online)
+        sender:sender_id(name,domain,last_seen),
+        receiver:receiver_id(name,domain,last_seen)
       `)
       .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
       .eq("status", "accepted");
 
-    const users =
-      data?.map((c) => {
-        if (c.sender_id === user.id) {
+      const isOnline = (lastSeen) => {
+        if (!lastSeen) return false;
+      
+        const last = new Date(lastSeen + "Z").getTime();
+        const now = Date.now();
+      
+        return now - last < 60000;
+      };
+      
+      const users =
+        data?.map((c) => {
+          if (c.sender_id === user.id) {
+            return {
+              id: c.receiver_id,
+              name: c.receiver?.name || "User",
+              dept: c.receiver?.domain || "Dept",
+              online: isOnline(c.receiver?.last_seen)
+            };
+          } else {
+            return {
+              id: c.sender_id,
+              name: c.sender?.name || "User",
+              dept: c.sender?.domain || "Dept",
+              online: isOnline(c.sender?.last_seen)
+            };
+          }
+        }) || [];
+    // fetch latest message for each connection
+    const updatedUsers = await Promise.all(
+      users.map(async (u) => {
+        const { data: lastMsg } = await supabase
+          .from("messages")
+          .select("message, created_at")
+          .or(
+            `and(sender_id.eq.${user.id},receiver_id.eq.${u.id}),and(sender_id.eq.${u.id},receiver_id.eq.${user.id})`
+          )
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+  
           return {
-            id: c.receiver_id,
-            name: c.receiver?.name || "User",
-            dept: c.receiver?.domain || "Dept",
-            online: c.receiver?.online || false
+            ...u,
+            lastMessage: lastMsg?.message || null,
+            lastMessageTime: lastMsg?.created_at || null
           };
-        } else {
-          return {
-            id: c.sender_id,
-            name: c.sender?.name || "User",
-            dept: c.sender?.domain || "Dept",
-            online: c.sender?.online || false
-          };
-        }
-      }) || [];
-
-    setConnections(users);
+      })
+    );
+  
+    setConnections(updatedUsers);
   }, [user]);
 
   useEffect(() => {
@@ -127,11 +142,13 @@ export default function Messages() {
   // refresh online status every 4 sec
   useEffect(() => {
     if (!user) return;
-
+  
+    loadConnections(); // initial load
+  
     const interval = setInterval(() => {
       loadConnections();
-    }, 4000);
-
+    }, 5000); // refresh every 5 seconds
+  
     return () => clearInterval(interval);
   }, [user, loadConnections]);
 
@@ -250,36 +267,50 @@ export default function Messages() {
         <div className="chat-sidebar">
           <h3>Messages</h3>
 
-          {connections.map((u) => (
-            <div
-              key={u.id}
-              className={`chat-user ${receiver === u.id ? "active" : ""}`}
-              onClick={() => setReceiver(u.id)}
-            >
-              <div className="avatar">
-                {u.name[0]}
-                {u.online && <span className="online-dot"></span>}
-              </div>
-
-              <div>
-                <div className="username">{u.name}</div>
-
-                <div className="last-msg">
-                  {typingUser === u.id ? (
-                    <span className="typing">Typing...</span>
-                  ) : (
-                    messages
-                      .filter(
-                        (m) =>
-                          (m.sender_id === user?.id && m.receiver_id === u.id) ||
-                          (m.sender_id === u.id && m.receiver_id === user?.id)
-                      )
-                      .slice(-1)[0]?.message || "Tap to chat"
-                  )}
+          {connections.map((u) => {
+            
+            return (
+              <div
+                key={u.id}
+                className={`chat-user ${receiver === u.id ? "active" : ""}`}
+                onClick={() => setReceiver(u.id)}
+              >
+                <div className="avatar">
+                  {u.name[0]}
+                  {u.online && <span className="online-dot"></span>}
+                </div>
+            
+                <div className="chat-info">
+            
+                  {/* NAME + TIME ROW */}
+                  <div className="name-row">
+                    <span className="username">{u.name}</span>
+            
+                    <span className="msg-time">
+                      {u.lastMessageTime
+                        ? new Date(u.lastMessageTime).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : ""}
+                    </span>
+                  </div>
+            
+                  {/* LAST MESSAGE */}
+                  <div className="last-msg">
+                    {typingUser === u.id ? (
+                      <span className="typing">Typing...</span>
+                    ) : u.lastMessage ? (
+                      u.lastMessage
+                    ) : (
+                      "Tap to chat"
+                    )}
+                  </div>
+            
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* CHAT AREA */}

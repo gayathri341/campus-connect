@@ -61,10 +61,35 @@
         background:#22c55e;
         border-radius:50%;
         border:2px solid white;
+        z-index:2;
       }
     
     .username{
     font-weight:600;
+    }
+    
+    .chat-info{
+      flex:1;
+    }
+    
+    .name-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    
+    .msg-time{
+      font-size:11px;
+      color:#8a8a8a;
+    }
+    
+    .last-msg{
+      font-size:13px;
+      color:#777;
+      margin-top:2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     
     .tag{
@@ -153,6 +178,11 @@
         margin-left:auto;
         border-radius:14px 14px 2px 14px;
         position:relative;
+      
+        max-width:60%;
+        width:fit-content;
+        padding:10px 14px;
+        word-wrap:break-word;
       }
       .message.me::after{
         content:"";
@@ -170,10 +200,14 @@
       
       .message.other {
         background: #b47fc2;
-        border-radius:14px 14px 14px 2px;
-        position:relative;
-        color:white;
-        
+        border-radius: 14px 14px 14px 2px;
+        position: relative;
+        color: white;
+      
+        max-width: 60%;
+        width: fit-content;
+        padding: 10px 14px;
+        word-wrap: break-word;
       }
 
       .message.other::after{
@@ -199,13 +233,6 @@
       .msg-text{
         padding-right: 60px;
 
-      }
-      .last-msg{
-        font-size:13px;
-        color:#777;
-        overflow:hidden;
-        white-space:nowrap;
-        text-overflow:ellipsis;
       }
       
       .typing{
