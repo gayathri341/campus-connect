@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "../supabase";
 import Navbar from "../components/Navbar";
@@ -10,6 +11,7 @@ export default function Messages() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [banned, setBanned] = useState(false);
+  const [typingUser, setTypingUser] = useState(null);
 
   const bottomRef = useRef(null);
 
@@ -23,7 +25,7 @@ export default function Messages() {
   }, []);
 
   // -------------------------
-  // STEP 2: Set user ONLINE
+  // Set user ONLINE
   // -------------------------
   useEffect(() => {
     if (!user) return;
@@ -39,34 +41,28 @@ export default function Messages() {
   }, [user]);
 
   // -------------------------
-  // STEP 3: Set OFFLINE when leaving
+  // Set OFFLINE when leaving
   // -------------------------
   useEffect(() => {
     const setOffline = async () => {
       if (!user) return;
-  
+
       await supabase
         .from("profiles")
         .update({ online: false })
         .eq("user_id", user.id);
     };
-  
-    const handleVisibility = () => {
-      if (document.hidden) {
-        setOffline();
-      }
-    };
-  
-    window.addEventListener("beforeunload", setOffline);
-    document.addEventListener("visibilitychange", handleVisibility);
-  
+
+    window.addEventListener("pagehide", setOffline);
+
     return () => {
-      window.removeEventListener("beforeunload", setOffline);
-      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("pagehide", setOffline);
     };
   }, [user]);
 
+  // -------------------------
   // Check ban status
+  // -------------------------
   const checkBan = useCallback(async () => {
     if (!user) return;
 
@@ -82,12 +78,11 @@ export default function Messages() {
   }, [user]);
 
   useEffect(() => {
-    // eslint-disable-next-line
     checkBan();
   }, [checkBan]);
 
   // -------------------------
-  // STEP 4: Load connections WITH ONLINE
+  // Load connections
   // -------------------------
   const loadConnections = useCallback(async () => {
     if (!user) return;
@@ -126,21 +121,23 @@ export default function Messages() {
   }, [user]);
 
   useEffect(() => {
-    // eslint-disable-next-line
     loadConnections();
   }, [loadConnections]);
 
+  // refresh online status every 4 sec
   useEffect(() => {
     if (!user) return;
-  
+
     const interval = setInterval(() => {
       loadConnections();
-    }, 4000); // every 4 seconds
-  
+    }, 4000);
+
     return () => clearInterval(interval);
   }, [user, loadConnections]);
 
+  // -------------------------
   // Load messages
+  // -------------------------
   const loadMessages = useCallback(async () => {
     if (!receiver || !user) return;
 
@@ -156,16 +153,19 @@ export default function Messages() {
   }, [receiver, user]);
 
   useEffect(() => {
-    // eslint-disable-next-line
     loadMessages();
   }, [loadMessages]);
 
+  // -------------------------
   // Auto scroll
+  // -------------------------
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // -------------------------
   // Realtime messages
+  // -------------------------
   useEffect(() => {
     if (!user) return;
 
@@ -190,7 +190,33 @@ export default function Messages() {
     return () => supabase.removeChannel(channel);
   }, [user, receiver]);
 
+  // -------------------------
+  // Typing listener
+  // -------------------------
+  useEffect(() => {
+    if (!user) return;
+
+    const typingChannel = supabase
+      .channel("typing-channel")
+      .on("broadcast", { event: "typing" }, (payload) => {
+        const { sender, receiver: target } = payload.payload;
+
+        if (target === user.id) {
+          setTypingUser(sender);
+
+          setTimeout(() => {
+            setTypingUser(null);
+          }, 2000);
+        }
+      })
+      .subscribe();
+
+    return () => supabase.removeChannel(typingChannel);
+  }, [user]);
+
+  // -------------------------
   // Send message
+  // -------------------------
   const sendMessage = async () => {
     if (!text || !receiver || banned) return;
 
@@ -201,7 +227,7 @@ export default function Messages() {
         message: text,
       },
     ]);
-
+    setTypingUser(null);
     setText("");
   };
 
@@ -230,14 +256,27 @@ export default function Messages() {
               className={`chat-user ${receiver === u.id ? "active" : ""}`}
               onClick={() => setReceiver(u.id)}
             >
-            <div className="avatar">
-              {u.name[0]}
-              {u.online && <span className="online-dot"></span>}
-            </div>
+              <div className="avatar">
+                {u.name[0]}
+                {u.online && <span className="online-dot"></span>}
+              </div>
 
               <div>
                 <div className="username">{u.name}</div>
-                <div className="dept">{u.dept}</div>
+
+                <div className="last-msg">
+                  {typingUser === u.id ? (
+                    <span className="typing">Typing...</span>
+                  ) : (
+                    messages
+                      .filter(
+                        (m) =>
+                          (m.sender_id === user?.id && m.receiver_id === u.id) ||
+                          (m.sender_id === u.id && m.receiver_id === user?.id)
+                      )
+                      .slice(-1)[0]?.message || "Tap to chat"
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -272,7 +311,13 @@ export default function Messages() {
                     <div className="time">{formatTime(msg.created_at)}</div>
                   </div>
                 ))}
-
+                  {typingUser === receiver && (
+                  <div className="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                )}
                 <div ref={bottomRef}></div>
               </div>
 
@@ -280,7 +325,18 @@ export default function Messages() {
                 <div className="chat-input">
                   <textarea
                     value={text}
-                    onChange={(e) => setText(e.target.value)}
+                    onChange={(e) => {
+                      setText(e.target.value);
+
+                      supabase.channel("typing-channel").send({
+                        type: "broadcast",
+                        event: "typing",
+                        payload: {
+                          sender: user.id,
+                          receiver: receiver
+                        }
+                      });
+                    }}
                     placeholder="Type a message..."
                     rows="2"
                   />
