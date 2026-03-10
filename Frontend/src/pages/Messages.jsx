@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "../supabase";
 import Navbar from "../components/Navbar";
 import "../styles/messages.css";
+import { Check, CheckCheck } from "lucide-react";
 
 export default function Messages() {
   const [user, setUser] = useState(null);
@@ -157,7 +158,7 @@ useEffect(() => {
   // -------------------------
   const loadMessages = useCallback(async () => {
     if (!receiver || !user) return;
-
+  
     const { data } = await supabase
       .from("messages")
       .select("*")
@@ -165,14 +166,43 @@ useEffect(() => {
         `and(sender_id.eq.${user.id},receiver_id.eq.${receiver}),and(sender_id.eq.${receiver},receiver_id.eq.${user.id})`
       )
       .order("created_at");
-
+  
     setMessages(data || []);
+  
+    // STEP 2: mark messages as delivered
+    await supabase
+      .from("messages")
+      .update({ delivered: true })
+      .eq("receiver_id", user.id)
+      .eq("sender_id", receiver)
+      .eq("seen", false);
+  
+    // STEP 3: mark messages as seen
+    await supabase
+      .from("messages")
+      .update({ seen: true })
+      .eq("receiver_id", user.id)
+      .eq("sender_id", receiver);
+  
   }, [receiver, user]);
-
   useEffect(() => {
     loadMessages();
   }, [loadMessages]);
+ // Mark messages as seen when chat is opened
+ useEffect(() => {
+  if (!receiver || !user) return;
 
+  const markSeen = async () => {
+    await supabase
+      .from("messages")
+      .update({ seen: true })
+      .eq("receiver_id", user.id)
+      .eq("sender_id", receiver)
+      .eq("seen", false);
+  };
+
+  markSeen();
+}, [receiver, user]);
   // -------------------------
   // Auto scroll
   // -------------------------
@@ -207,6 +237,32 @@ useEffect(() => {
     return () => supabase.removeChannel(channel);
   }, [user, receiver]);
 
+
+//  HERE ?
+useEffect(() => {
+  const channel = supabase
+    .channel("message-status")
+    .on(
+      "postgres_changes",
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: "messages",
+      },
+      (payload) => {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === payload.new.id ? payload.new : msg
+          )
+        );
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, []);
   // -------------------------
   // Typing listener
   // -------------------------
@@ -298,14 +354,23 @@ useEffect(() => {
             
                   {/* LAST MESSAGE */}
                   <div className="last-msg">
-                    {typingUser === u.id ? (
-                      <span className="typing">Typing...</span>
-                    ) : u.lastMessage ? (
-                      u.lastMessage
-                    ) : (
-                      "Tap to chat"
-                    )}
-                  </div>
+                  {u.lastMessageSender === user?.id && (
+                    <span className={`ticks-small ${
+                      u.lastSeen ? "seen" : u.lastDelivered ? "delivered" : "sent"
+                    }`}>
+                      ✓✓
+                    </span>
+                  )}
+
+                  {typingUser === u.id ? (
+                    <span className="typing">Typing...</span>
+                  ) : u.lastMessage ? (
+                    u.lastMessage
+                  ) : (
+                    "Tap to chat"
+                  )}
+
+                </div>
             
                 </div>
               </div>
@@ -329,8 +394,8 @@ useEffect(() => {
               </div>
 
               <div className="chat-messages">
-                {messages.map((msg) => (
-                  <div
+                  {messages.map((msg) => (
+                    <div
                     key={msg.id}
                     className={
                       msg.sender_id === user?.id
@@ -338,19 +403,40 @@ useEffect(() => {
                         : "message other"
                     }
                   >
-                    <div className="msg-text">{msg.message}</div>
-                    <div className="time">{formatTime(msg.created_at)}</div>
+                    <div className="msg-row">
+                      <span className="msg-text">{msg.message}</span>
+                  
+                      <span className="msg-info">
+                        <span className="time">{formatTime(msg.created_at)}</span>
+                  
+                        {msg.sender_id === user?.id && (
+                          <span
+                          className={`ticks ${
+                            msg.seen ? "seen" : msg.delivered ? "delivered" : "sent"
+                          }`}
+                        >
+                          {!msg.delivered ? (
+                            <Check size={16}/>
+                          ) : (
+                            <CheckCheck size={16}/>
+                          )}
+                        </span>
+                        )}
+                      </span>
+                    </div>
                   </div>
-                ))}
+                  ))}
+
                   {typingUser === receiver && (
-                  <div className="typing-indicator">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                )}
-                <div ref={bottomRef}></div>
-              </div>
+                    <div className="typing-indicator">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  )}
+
+                  <div ref={bottomRef}></div>
+                </div>
 
               {!banned ? (
                 <div className="chat-input">
