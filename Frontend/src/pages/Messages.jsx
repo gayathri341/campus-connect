@@ -117,7 +117,7 @@ useEffect(() => {
       users.map(async (u) => {
         const { data: lastMsg } = await supabase
           .from("messages")
-          .select("message, created_at")
+          .select("message, created_at, sender_id, delivered, seen")
           .or(
             `and(sender_id.eq.${user.id},receiver_id.eq.${u.id}),and(sender_id.eq.${u.id},receiver_id.eq.${user.id})`
           )
@@ -128,7 +128,10 @@ useEffect(() => {
           return {
             ...u,
             lastMessage: lastMsg?.message || null,
-            lastMessageTime: lastMsg?.created_at || null
+            lastMessageTime: lastMsg?.created_at || null,
+            lastMessageSender: lastMsg?.sender_id,
+            lastDelivered: lastMsg?.delivered,
+            lastSeen: lastMsg?.seen
           };
       })
     );
@@ -171,19 +174,14 @@ useEffect(() => {
   
     // STEP 2: mark messages as delivered
     await supabase
-      .from("messages")
-      .update({ delivered: true })
-      .eq("receiver_id", user.id)
-      .eq("sender_id", receiver)
-      .eq("seen", false);
-  
-    // STEP 3: mark messages as seen
-    await supabase
-      .from("messages")
-      .update({ seen: true })
-      .eq("receiver_id", user.id)
-      .eq("sender_id", receiver);
-  
+    .from("messages")
+    .update({
+      delivered: true,
+      seen: true
+    })
+    .eq("receiver_id", user.id)
+    .eq("sender_id", receiver);
+    
   }, [receiver, user]);
   useEffect(() => {
     loadMessages();
@@ -240,6 +238,8 @@ useEffect(() => {
 
 //  HERE ?
 useEffect(() => {
+  if (!user) return;
+
   const channel = supabase
     .channel("message-status")
     .on(
@@ -250,11 +250,25 @@ useEffect(() => {
         table: "messages",
       },
       (payload) => {
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === payload.new.id ? payload.new : msg
-          )
-        );
+        const updated = payload.new;
+
+        // only update if message belongs to this chat
+        if (
+          (updated.sender_id === user.id && updated.receiver_id === receiver) ||
+          (updated.sender_id === receiver && updated.receiver_id === user.id)
+        ) {
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === updated.id
+                ? {
+                    ...msg,
+                    delivered: updated.delivered,
+                    seen: updated.seen,
+                  }
+                : msg
+            )
+          );
+        }
       }
     )
     .subscribe();
@@ -262,7 +276,7 @@ useEffect(() => {
   return () => {
     supabase.removeChannel(channel);
   };
-}, []);
+}, [user, receiver]);
   // -------------------------
   // Typing listener
   // -------------------------
@@ -354,23 +368,30 @@ useEffect(() => {
             
                   {/* LAST MESSAGE */}
                   <div className="last-msg">
-                  {u.lastMessageSender === user?.id && (
-                    <span className={`ticks-small ${
-                      u.lastSeen ? "seen" : u.lastDelivered ? "delivered" : "sent"
-                    }`}>
-                      ✓✓
-                    </span>
-                  )}
+                      {u.lastMessageSender === user?.id && (
+                        <span
+                          className={`ticks-small ${
+                            u.lastSeen ? "seen" : u.lastDelivered ? "delivered" : "sent"
+                          }`}
+                        >
+                          {u.lastSeen ? (
+                            <CheckCheck size={14} />
+                          ) : u.lastDelivered ? (
+                            <CheckCheck size={14} />
+                          ) : (
+                            <Check size={14} />
+                          )}
+                        </span>
+                      )}
 
-                  {typingUser === u.id ? (
-                    <span className="typing">Typing...</span>
-                  ) : u.lastMessage ? (
-                    u.lastMessage
-                  ) : (
-                    "Tap to chat"
-                  )}
-
-                </div>
+                      {typingUser === u.id ? (
+                        <span className="typing">Typing...</span>
+                      ) : u.lastMessage ? (
+                        u.lastMessage
+                      ) : (
+                        "Tap to chat"
+                      )}
+                    </div>
             
                 </div>
               </div>
@@ -415,10 +436,12 @@ useEffect(() => {
                             msg.seen ? "seen" : msg.delivered ? "delivered" : "sent"
                           }`}
                         >
-                          {!msg.delivered ? (
-                            <Check size={16}/>
+                         {msg.seen ? (
+                            <CheckCheck size={16} />
+                          ) : msg.delivered ? (
+                            <CheckCheck size={16} />
                           ) : (
-                            <CheckCheck size={16}/>
+                            <Check size={16} />
                           )}
                         </span>
                         )}
