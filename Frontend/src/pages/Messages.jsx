@@ -13,7 +13,8 @@ export default function Messages() {
   const [text, setText] = useState("");
   const [banned, setBanned] = useState(false);
   const [typingUser, setTypingUser] = useState(null);
-
+  const [activeReactionMsg, setActiveReactionMsg] = useState(null);
+  const reactionTimer = useRef(null);
   const bottomRef = useRef(null);
 
  
@@ -115,6 +116,7 @@ useEffect(() => {
     // fetch latest message for each connection
     const updatedUsers = await Promise.all(
       users.map(async (u) => {
+    
         const { data: lastMsg } = await supabase
           .from("messages")
           .select("message, created_at, sender_id, delivered, seen")
@@ -124,15 +126,24 @@ useEffect(() => {
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle();
-  
-          return {
-            ...u,
-            lastMessage: lastMsg?.message || null,
-            lastMessageTime: lastMsg?.created_at || null,
-            lastMessageSender: lastMsg?.sender_id,
-            lastDelivered: lastMsg?.delivered,
-            lastSeen: lastMsg?.seen
-          };
+    
+        // unread messages from that user
+        const { count } = await supabase
+          .from("messages")
+          .select("*", { count: "exact", head: true })
+          .eq("sender_id", u.id)
+          .eq("receiver_id", user.id)
+          .eq("seen", false);
+    
+        return {
+          ...u,
+          lastMessage: lastMsg?.message || null,
+          lastMessageTime: lastMsg?.created_at || null,
+          lastMessageSender: lastMsg?.sender_id,
+          lastDelivered: lastMsg?.delivered,
+          lastSeen: lastMsg?.seen,
+          unreadCount: count || 0
+        };
       })
     );
   
@@ -164,7 +175,14 @@ useEffect(() => {
   
     const { data } = await supabase
       .from("messages")
-      .select("*")
+      .select(`
+        *,
+        message_reactions (
+          id,
+          reaction,
+          user_id
+        )
+      `)
       .or(
         `and(sender_id.eq.${user.id},receiver_id.eq.${receiver}),and(sender_id.eq.${receiver},receiver_id.eq.${user.id})`
       )
@@ -277,6 +295,29 @@ useEffect(() => {
     supabase.removeChannel(channel);
   };
 }, [user, receiver]);
+
+
+
+useEffect(() => {
+  const channel = supabase
+    .channel("reactions")
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "message_reactions"
+      },
+      () => {
+        loadMessages();
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [loadMessages]);
   // -------------------------
   // Typing listener
   // -------------------------
@@ -317,6 +358,79 @@ useEffect(() => {
     setTypingUser(null);
     setText("");
   };
+  const reactToMessage = async (messageId, emoji) => {
+    if (!user) return;
+  
+    const message = messages.find((m) => m.id === messageId);
+  
+    const existingReaction = message?.message_reactions?.find(
+      (r) => r.user_id === user.id
+    );
+  
+    // If user clicked same emoji again → remove reaction
+    if (existingReaction && existingReaction.reaction === emoji) {
+      const { error } = await supabase
+        .from("message_reactions")
+        .delete()
+        .eq("message_id", messageId)
+        .eq("user_id", user.id);
+  
+      if (!error) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === messageId
+              ? { ...msg, message_reactions: [] }
+              : msg
+          )
+        );
+      }
+  
+      return;
+    }
+  
+    // Otherwise add / change reaction
+    const { error } = await supabase
+      .from("message_reactions")
+      .upsert(
+        {
+          message_id: messageId,
+          user_id: user.id,
+          reaction: emoji,
+        },
+        { onConflict: "message_id,user_id" }
+      );
+  
+    if (!error) {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === messageId
+            ? {
+                ...msg,
+                message_reactions: [
+                  {
+                    reaction: emoji,
+                    user_id: user.id,
+                  },
+                ],
+              }
+            : msg
+        )
+      );
+    }
+  };
+
+  const showReactions = (msgId) => {
+    if (reactionTimer.current) {
+      clearTimeout(reactionTimer.current);
+    }
+    setActiveReactionMsg(msgId);
+  };
+  
+  const hideReactions = () => {
+    reactionTimer.current = setTimeout(() => {
+      setActiveReactionMsg(null);
+    }, 3000);
+  };
 
   const formatTime = (time) => {
     return new Date(time).toLocaleTimeString([], {
@@ -344,18 +458,18 @@ useEffect(() => {
                 key={u.id}
                 className={`chat-user ${receiver === u.id ? "active" : ""}`}
                 onClick={() => setReceiver(u.id)}
-              >
-                <div className="avatar">
+               >
+                <div className="avatars">
                   {u.name[0]}
                   {u.online && <span className="online-dot"></span>}
                 </div>
             
                 <div className="chat-info">
-            
+
                   {/* NAME + TIME ROW */}
                   <div className="name-row">
                     <span className="username">{u.name}</span>
-            
+
                     <span className="msg-time">
                       {u.lastMessageTime
                         ? new Date(u.lastMessageTime).toLocaleTimeString([], {
@@ -365,42 +479,55 @@ useEffect(() => {
                         : ""}
                     </span>
                   </div>
-            
-                  {/* LAST MESSAGE */}
-                  <div className="last-msg">
-                      {u.lastMessageSender === user?.id && (
-                        <span
-                          className={`ticks-small ${
-                            u.lastSeen ? "seen" : u.lastDelivered ? "delivered" : "sent"
-                          }`}
-                        >
-                          {u.lastSeen ? (
-                            <CheckCheck size={14} />
-                          ) : u.lastDelivered ? (
-                            <CheckCheck size={14} />
-                          ) : (
-                            <Check size={14} />
-                          )}
-                        </span>
-                      )}
 
-                      {typingUser === u.id ? (
-                        <span className="typing">Typing...</span>
-                      ) : u.lastMessage ? (
-                        u.lastMessage
-                      ) : (
-                        "Tap to chat"
-                      )}
-                    </div>
-            
+{/* LAST MESSAGE ROW */}
+<div className="last-msg-row">
+
+  <div className="last-msg">
+
+    {typingUser === u.id ? (
+      <span className="typing">Typing...</span>
+    ) : (
+      <>
+        {u.lastMessageSender === user?.id && (
+          <span
+            className={`ticks-small ${
+              u.lastSeen ? "seen" : u.lastDelivered ? "delivered" : "sent"
+            }`}
+          >
+            {u.lastSeen ? (
+              <CheckCheck size={14} />
+            ) : u.lastDelivered ? (
+              <CheckCheck size={14} />
+            ) : (
+              <Check size={14} />
+            )}
+          </span>
+        )}
+
+        {u.lastMessage ? u.lastMessage : "Tap to chat"}
+      </>
+    )}
+
+  </div>
+
+  {/* UNREAD BADGE */}
+  {u.unreadCount > 0 && (
+    <span className="unread-badge">
+      {u.unreadCount > 5 ? "5+" : u.unreadCount}
+    </span>
+  )}
+
+</div>
+
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+             })}
+         </div>
 
-        {/* CHAT AREA */}
-        <div className="chat-main">
+                  {/* CHAT AREA */}
+          <div className="chat-main">
 
           {!receiver && (
             <div className="empty-chat">
@@ -415,40 +542,93 @@ useEffect(() => {
               </div>
 
               <div className="chat-messages">
-                  {messages.map((msg) => (
-                    <div
-                    key={msg.id}
-                    className={
-                      msg.sender_id === user?.id
-                        ? "message me"
-                        : "message other"
-                    }
-                  >
-                    <div className="msg-row">
-                      <span className="msg-text">{msg.message}</span>
-                  
-                      <span className="msg-info">
-                        <span className="time">{formatTime(msg.created_at)}</span>
-                  
-                        {msg.sender_id === user?.id && (
-                          <span
-                          className={`ticks ${
-                            msg.seen ? "seen" : msg.delivered ? "delivered" : "sent"
-                          }`}
+                  {messages.map((msg) => {
+
+                    const userReaction = msg.message_reactions?.find(
+                      (r) => r.user_id === user?.id
+                    );
+
+                    return (
+                      <div
+                        key={msg.id}
+                        className={
+                          msg.sender_id === user?.id
+                            ? "message me"
+                            : "message other"
+                        }
+                        style={{ position: "relative" }}
+                      >
+
+                        {/* MESSAGE ROW */}
+                        <div
+                          className="msg-row reaction-wrapper"
+                          onMouseEnter={() => {
+                            if (msg.sender_id !== user?.id) showReactions(msg.id);
+                          }}
+                          onMouseLeave={hideReactions}
                         >
-                         {msg.seen ? (
-                            <CheckCheck size={16} />
-                          ) : msg.delivered ? (
-                            <CheckCheck size={16} />
-                          ) : (
-                            <Check size={16} />
+
+                          {activeReactionMsg === msg.id && msg.sender_id !== user?.id && (
+                            <div
+                              className="reaction-picker"
+                              onMouseEnter={() => showReactions(msg.id)}
+                              onMouseLeave={hideReactions}
+                            >
+                              {["👍","❤️","😂","😮","😢","🔥"].map((emoji) => (
+                                <span
+                                  key={emoji}
+                                  className={`reaction-emoji ${
+                                    userReaction?.reaction === emoji ? "active-reaction" : ""
+                                  }`}
+                                  onClick={() => reactToMessage(msg.id, emoji)}
+                                >
+                                  {emoji}
+                                </span>
+                              ))}
+                            </div>
                           )}
-                        </span>
+
+                          {/* MESSAGE TEXT */}
+                          <span className="msg-text">{msg.message}</span>
+
+                          {/* TIME + TICKS */}
+                          <span className="msg-info">
+                            <span className="time">{formatTime(msg.created_at)}</span>
+
+                            {msg.sender_id === user?.id && (
+                              <span
+                                className={`ticks ${
+                                  msg.seen ? "seen" : msg.delivered ? "delivered" : "sent"
+                                }`}
+                              >
+                                {msg.seen ? (
+                                  <CheckCheck size={16} />
+                                ) : msg.delivered ? (
+                                  <CheckCheck size={16} />
+                                ) : (
+                                  <Check size={16} />
+                                )}
+                              </span>
+                            )}
+                          </span>
+
+                        </div>
+
+                        {/* SHOW REACTION ON MESSAGE */}
+                        {msg.message_reactions?.length > 0 && (
+                          <div
+                            className={`reaction-badge ${
+                              msg.sender_id === user?.id ? "my-reaction" : "other-reaction"
+                            }`}
+                          >
+                            {msg.message_reactions[0].reaction}
+                          </div>
                         )}
-                      </span>
-                    </div>
-                  </div>
-                  ))}
+
+                      </div>
+                    );
+
+                  })}
 
                   {typingUser === receiver && (
                     <div className="typing-indicator">
@@ -477,6 +657,12 @@ useEffect(() => {
                         }
                       });
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                      }
+                    }}
                     placeholder="Type a message..."
                     rows="2"
                   />
@@ -489,7 +675,7 @@ useEffect(() => {
               )}
             </>
           )}
-        </div>
+          </div>
       </div>
     </>
   );
