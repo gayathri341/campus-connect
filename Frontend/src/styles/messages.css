@@ -181,11 +181,11 @@
     height:500px;
     display:flex;
     flex-direction:column;
-    gap:px;
+    gap:4px;
     background-color: #f5f7fb;
     background-image: radial-gradient(#dcdcdc 1px, transparent 1px);
     background-size: 20px 20px;
- 
+
     }
     .chat-messages::-webkit-scrollbar{
         width:6px;
@@ -219,7 +219,7 @@
         max-width: 60%;
         padding: 12px 16px;
         border-radius: 12px;
-        margin-bottom: 12px;
+        margin-bottom: 1px;
         word-wrap: break-word;
         animation:messageAppear 0.25s ease;
       
@@ -286,7 +286,7 @@
       .reaction-picker{
         position:absolute;
         top:-35px;
-        right:0;
+        right:-145px;
         background:white;
         border-radius:20px;
         padding:4px 8px;
@@ -479,7 +479,13 @@
       
         overflow-y:auto;
       }
-
+      .chat-input textarea:focus{
+        outline:none;
+        border:inherit;
+      }
+      .chat-input textarea:focus-visible{
+        outline:none;
+      }
       .chat-input button:hover{
         background:#167a6c;
         transform:scale(1.05);

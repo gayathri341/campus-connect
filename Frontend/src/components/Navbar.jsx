@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from "react";
 import { supabase } from '../supabase'
 import '../styles/navbar.css'
 import logo from '../assets/newlogo.png'
@@ -8,7 +9,74 @@ import Ring from "../assets/ringing.png";
 import { MdDashboard, MdMessage, MdPeople, MdFolder, MdNotificationsNone, MdPersonOutline, MdLogout } from "react-icons/md"
 
 export default function Navbar() {
+
+  const [unreadTotal, setUnreadTotal] = useState(0);
   const navigate = useNavigate()
+
+  // Initial unread fetch
+  useEffect(() => {
+
+    const fetchUnreadMessages = async () => {
+
+      const { data } = await supabase.auth.getUser();
+      const user = data.user;
+
+      if (!user) return;
+
+      const { count } = await supabase
+        .from("messages")
+        .select("*", { count: "exact", head: true })
+        .eq("receiver_id", user.id)
+        .eq("seen", false);
+
+      setUnreadTotal(count || 0);
+    };
+
+    fetchUnreadMessages();
+
+  }, []);
+
+
+  // Realtime listener
+  useEffect(() => {
+
+    const refreshUnread = async () => {
+
+      const { data } = await supabase.auth.getUser();
+      const user = data.user;
+
+      if (!user) return;
+
+      const { count } = await supabase
+        .from("messages")
+        .select("*", { count: "exact", head: true })
+        .eq("receiver_id", user.id)
+        .eq("seen", false);
+
+      setUnreadTotal(count || 0);
+    };
+
+    const channel = supabase
+      .channel("navbar-unread")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "messages",
+        },
+        () => {
+          refreshUnread();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+
+  }, []);
+
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -19,7 +87,7 @@ export default function Navbar() {
     <header className="app-navbar">
       <div className="nav-left">
         <div className="brand">
-           <img src={logo} alt="CampusConnect" className="brand-img" />
+          <img src={logo} alt="CampusConnect" className="brand-img" />
           <span>PlaceMent</span>
         </div>
 
@@ -30,15 +98,24 @@ export default function Navbar() {
               <span className="nav-text">Dashboard</span>
             </span>
           </NavLink>
-         
+
+          {/* Messages */}
           <NavLink to="/messages" className="nav-item">
-            <span className="nav-link-content">
+            <span className="nav-link-content nav-msg-wrapper">
+
               <MdMessage className="nav-icon" />
+
               <span className="nav-text">Messages</span>
+
+              {unreadTotal > 0 && (
+                <span className="nav-msg-badge">
+                  {unreadTotal > 9 ? "9+" : unreadTotal}
+                </span>
+              )}
+
             </span>
           </NavLink>
 
-         {/* Connections */}
           <NavLink to="/connections" className="nav-item">
             <span className="nav-link-content">
               <MdPeople className="nav-icon" />
@@ -46,7 +123,6 @@ export default function Navbar() {
             </span>
           </NavLink>
 
-          {/* Resources */}
           <NavLink to="/resources" className="nav-item">
             <span className="nav-link-content">
               <MdFolder className="nav-icon" />
@@ -57,28 +133,27 @@ export default function Navbar() {
       </div>
 
       <div className="nav-right">
-  <button
-    className="nav-icon-btn"
-    onClick={() => navigate('/notifications')}
-  >
-    <MdNotificationsNone className="nav-top-icon" />
-  </button>
+        <button
+          className="nav-icon-btn"
+          onClick={() => navigate('/notifications')}
+        >
+          <MdNotificationsNone className="nav-top-icon" />
+        </button>
 
-  <button
-    className="nav-icon-btn"
-    onClick={() => navigate('/profile')}
-  >
-    <MdPersonOutline className="nav-top-icon" />
-  </button>
+        <button
+          className="nav-icon-btn"
+          onClick={() => navigate('/profile')}
+        >
+          <MdPersonOutline className="nav-top-icon" />
+        </button>
 
-  <button
-    className="nav-icon-btn logout"
-    onClick={handleLogout}
-  >
-    <MdLogout className="nav-top-icon" />
-  </button>
-</div>
-
+        <button
+          className="nav-icon-btn logout"
+          onClick={handleLogout}
+        >
+          <MdLogout className="nav-top-icon" />
+        </button>
+      </div>
     </header>
   )
 }
