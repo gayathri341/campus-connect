@@ -4,7 +4,7 @@ import { supabase } from "../supabase";
 import Navbar from "../components/Navbar";
 import "../styles/messages.css";
 import { Check, CheckCheck } from "lucide-react";
-
+import { MdReply, MdEdit, MdDelete } from "react-icons/md";
 export default function Messages() {
   const [user, setUser] = useState(null);
   const [connections, setConnections] = useState([]);
@@ -13,11 +13,12 @@ export default function Messages() {
   const [text, setText] = useState("");
   const [banned, setBanned] = useState(false);
   const [typingUser, setTypingUser] = useState(null);
-  const [activeReactionMsg, setActiveReactionMsg] = useState(null);
-  const reactionTimer = useRef(null);
+  const [menuDirection, setMenuDirection] = useState("up");
   const bottomRef = useRef(null);
-
- 
+  const [hoveredMsg, setHoveredMsg] = useState(null);
+  const [replyMsg, setReplyMsg] = useState(null);
+  const [editingMsg, setEditingMsg] = useState(null);
+  const menuTimer = useRef(null);
 
   // Get logged user
   useEffect(() => {
@@ -181,6 +182,10 @@ useEffect(() => {
           id,
           reaction,
           user_id
+        ),
+        reply_to_message:reply_to (
+          id,
+          message
         )
       `)
       .or(
@@ -353,11 +358,40 @@ useEffect(() => {
         sender_id: user.id,
         receiver_id: receiver,
         message: text,
-      },
-    ]);
+        reply_to: replyMsg ? replyMsg.id : null
+      }
+      ]);
+    setReplyMsg(null);
     setTypingUser(null);
     setText("");
   };
+
+  // Delete Message
+  const deleteMessage = async (id) => {
+
+    await supabase
+      .from("messages")
+      .delete()
+      .eq("id", id);
+  
+  };
+  // Edit Message 
+
+  const startEdit = async () => {
+
+    await supabase
+      .from("messages")
+      .update({ message: text })
+      .eq("id", editingMsg.id);
+  
+    setEditingMsg(null);
+  };
+  useEffect(() => {
+    if (editingMsg) {
+      setText(editingMsg.message);
+    }
+  }, [editingMsg]);
+
   const reactToMessage = async (messageId, emoji) => {
     if (!user) return;
   
@@ -419,18 +453,7 @@ useEffect(() => {
     }
   };
 
-  const showReactions = (msgId) => {
-    if (reactionTimer.current) {
-      clearTimeout(reactionTimer.current);
-    }
-    setActiveReactionMsg(msgId);
-  };
-  
-  const hideReactions = () => {
-    reactionTimer.current = setTimeout(() => {
-      setActiveReactionMsg(null);
-    }, 3000);
-  };
+
 
   const formatTime = (time) => {
     return new Date(time).toLocaleTimeString([], {
@@ -505,20 +528,20 @@ useEffect(() => {
           </span>
         )}
 
-        {u.lastMessage ? u.lastMessage : "Tap to chat"}
-      </>
-    )}
+              {u.lastMessage ? u.lastMessage : "Tap to chat"}
+            </>
+          )}
 
-  </div>
+        </div>
 
-  {/* UNREAD BADGE */}
-  {u.unreadCount > 0 && (
-    <span className="unread-badge">
-      {u.unreadCount > 5 ? "5+" : u.unreadCount}
-    </span>
-  )}
+      {/* UNREAD BADGE */}
+      {u.unreadCount > 0 && (
+        <span className="unread-badge">
+          {u.unreadCount > 5 ? "5+" : u.unreadCount}
+        </span>
+      )}
 
-</div>
+    </div>
 
                   </div>
                 </div>
@@ -558,60 +581,130 @@ useEffect(() => {
                         }
                         style={{ position: "relative" }}
                       >
+<div
+  className="msg-row reaction-wrapper"
+  onMouseEnter={(e) => {
+    if (menuTimer.current) {
+      clearTimeout(menuTimer.current);
+    }
 
-                        {/* MESSAGE ROW */}
-                        <div
-                          className="msg-row reaction-wrapper"
-                          onMouseEnter={() => {
-                            if (msg.sender_id !== user?.id) showReactions(msg.id);
-                          }}
-                          onMouseLeave={hideReactions}
-                        >
+    const rect = e.currentTarget.getBoundingClientRect();
+    const chatContainer = document.querySelector(".chat-messages");
+    const containerRect = chatContainer.getBoundingClientRect();
 
-                          {activeReactionMsg === msg.id && msg.sender_id !== user?.id && (
-                            <div
-                              className="reaction-picker"
-                              onMouseEnter={() => showReactions(msg.id)}
-                              onMouseLeave={hideReactions}
-                            >
-                              {["👍","❤️","😂","😮","😢","🔥"].map((emoji) => (
-                                <span
-                                  key={emoji}
-                                  className={`reaction-emoji ${
-                                    userReaction?.reaction === emoji ? "active-reaction" : ""
-                                  }`}
-                                  onClick={() => reactToMessage(msg.id, emoji)}
-                                >
-                                  {emoji}
-                                </span>
-                              ))}
-                            </div>
-                          )}
+    const spaceBelow = containerRect.bottom - rect.bottom;
+    const menuHeight = 140;
 
-                          {/* MESSAGE TEXT */}
-                          <span className="msg-text">{msg.message}</span>
+    if (spaceBelow < menuHeight) {
+      setMenuDirection("up");
+    } else {
+      setMenuDirection("down");
+    }
 
-                          {/* TIME + TICKS */}
-                          <span className="msg-info">
-                            <span className="time">{formatTime(msg.created_at)}</span>
+    setHoveredMsg(msg.id);
+  }}
+  onMouseLeave={() => {
+    menuTimer.current = setTimeout(() => {
+      setHoveredMsg(null);
+    }, 400);
+  }}
+>
 
-                            {msg.sender_id === user?.id && (
-                              <span
-                                className={`ticks ${
-                                  msg.seen ? "seen" : msg.delivered ? "delivered" : "sent"
-                                }`}
-                              >
-                                {msg.seen ? (
-                                  <CheckCheck size={16} />
-                                ) : msg.delivered ? (
-                                  <CheckCheck size={16} />
-                                ) : (
-                                  <Check size={16} />
-                                )}
-                              </span>
-                            )}
-                          </span>
+{/* HOVER MENU */}
+{hoveredMsg === msg.id && (
+  <div
+    className={`message-menu ${menuDirection}`}
+    onMouseEnter={() => {
+      if (menuTimer.current) {
+        clearTimeout(menuTimer.current);
+      }
+      setHoveredMsg(msg.id);
+    }}
+    onMouseLeave={() => {
+      menuTimer.current = setTimeout(() => {
+        setHoveredMsg(null);
+      }, 400);
+    }}
+  >
 
+    {/* REACTIONS ROW */}
+    <div className="menu-reactions">
+      {["👍","❤️","😂","😮","😢","🔥"].map((emoji) => (
+        <span
+          key={emoji}
+          className={`reaction-emoji ${
+            userReaction?.reaction === emoji ? "active-reaction" : ""
+          }`}
+          onClick={() => reactToMessage(msg.id, emoji)}
+        >
+          {emoji}
+        </span>
+      ))}
+    </div>
+
+    <div className="menu-divider"></div>
+
+    <button
+      className="menu-item"
+      onClick={() => setReplyMsg(msg)}
+    >
+      <MdReply size={18} />
+      Reply
+    </button>
+
+    {msg.sender_id === user?.id && (
+      <button
+        className="menu-item"
+        onClick={() => startEdit(msg)}
+      >
+        <MdEdit size={18} />
+        Edit
+      </button>
+    )}
+
+    {msg.sender_id === user?.id && (
+      <button
+        className="menu-item delete"
+        onClick={() => deleteMessage(msg.id)}
+      >
+        <MdDelete size={18} />
+        Delete
+      </button>
+    )}
+
+  </div>
+)}
+
+                  {/* REPLY PREVIEW (NEW) */}
+                  {msg.reply_to_message && (
+                    <div className="reply-bubble">
+                      {msg.reply_to_message.message}
+                    </div>
+                  )}
+
+                  {/* MESSAGE TEXT */}
+                  <span className="msg-text">{msg.message}</span>
+
+                  {/* TIME + TICKS */}
+                  <span className="msg-info">
+                    <span className="time">{formatTime(msg.created_at)}</span>
+
+                    {msg.sender_id === user?.id && (
+                      <span
+                        className={`ticks ${
+                          msg.seen ? "seen" : msg.delivered ? "delivered" : "sent"
+                        }`}
+                      >
+                        {msg.seen ? (
+                          <CheckCheck size={16} />
+                        ) : msg.delivered ? (
+                          <CheckCheck size={16} />
+                        ) : (
+                          <Check size={16} />
+                        )}
+                      </span>
+                    )}
+                  </span>
                         </div>
 
                         {/* SHOW REACTION ON MESSAGE */}
