@@ -369,28 +369,56 @@ useEffect(() => {
   // Delete Message
   const deleteMessage = async (id) => {
 
-    await supabase
-      .from("messages")
-      .delete()
-      .eq("id", id);
+    const el = document.getElementById(`msg-${id}`);
+    if(el){
+      el.classList.add("deleting");
+    }
+  
+    setTimeout(async () => {
+  
+      const { error } = await supabase
+        .from("messages")
+        .delete()
+        .eq("id", id);
+  
+      if(!error){
+        setMessages((prev) => prev.filter((msg) => msg.id !== id));
+      }
+  
+    },200);
   
   };
   // Edit Message 
 
-  const startEdit = async () => {
+  const startEdit = (msg) => {
+    setEditingMsg(msg);
+    setText(msg.message);
+  };
+  const updateMessage = async () => {
 
-    await supabase
+    if (!editingMsg || !text.trim()) return;
+  
+    const { error } = await supabase
       .from("messages")
-      .update({ message: text })
+      .update({ message: text, edited: true })
       .eq("id", editingMsg.id);
   
-    setEditingMsg(null);
-  };
-  useEffect(() => {
-    if (editingMsg) {
-      setText(editingMsg.message);
+    if (error) {
+      console.log(error);
+      return;
     }
-  }, [editingMsg]);
+  
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === editingMsg.id
+          ? { ...m, message: text, edited: true }
+          : m
+      )
+    );
+  
+    setEditingMsg(null);
+    setText("");
+  };
 
   const reactToMessage = async (messageId, emoji) => {
     if (!user) return;
@@ -573,6 +601,7 @@ useEffect(() => {
 
                     return (
                       <div
+                        id={`msg-${msg.id}`}
                         key={msg.id}
                         className={
                           msg.sender_id === user?.id
@@ -675,15 +704,39 @@ useEffect(() => {
   </div>
 )}
 
-                  {/* REPLY PREVIEW (NEW) */}
-                  {msg.reply_to_message && (
-                    <div className="reply-bubble">
-                      {msg.reply_to_message.message}
-                    </div>
-                  )}
+                      {/* REPLY PREVIEW (NEW) */}
+                      {msg.reply_to_message && (
+                            <div
+                            className="reply-bubble"
+                            onClick={() => {
+                              const el = document.getElementById(`msg-${msg.reply_to}`);
+                              if (el) {
+                                el.scrollIntoView({ behavior: "smooth", block: "center" });
+                          
+                                el.classList.add("highlight-msg");
+                          
+                                setTimeout(() => {
+                                  el.classList.remove("highlight-msg");
+                                }, 1500);
+                              }
+                            }}
+                          >
+                          <div className="reply-sender">
+                            {msg.reply_to_message.sender_id === user?.id ? "You" : selectedUser?.name}
+                          </div>
+
+                          <div className="reply-msg-text">
+                            {msg.reply_to_message.message}
+                          </div>
+                        </div>
+                      )}
 
                   {/* MESSAGE TEXT */}
-                  <span className="msg-text">{msg.message}</span>
+                  <span className="msg-text">{msg.message}
+                  {msg.edited && (
+                      <span className="edited-label"> edited</span>
+                    )}
+                  </span>
 
                   {/* TIME + TICKS */}
                   <span className="msg-info">
@@ -735,31 +788,72 @@ useEffect(() => {
                 </div>
 
               {!banned ? (
+                
                 <div className="chat-input">
-                  <textarea
-                    value={text}
-                    onChange={(e) => {
-                      setText(e.target.value);
 
-                      supabase.channel("typing-channel").send({
-                        type: "broadcast",
-                        event: "typing",
-                        payload: {
-                          sender: user.id,
-                          receiver: receiver
-                        }
-                      });
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                      }
-                    }}
-                    placeholder="Type a message..."
-                    rows="2"
-                  />
-                  <button onClick={sendMessage}>➤</button>
+              {replyMsg && (
+                <div className="reply-preview-bar">
+
+                  <div className="reply-left-bar"></div>
+
+                  <div className="reply-content">
+                    <span className="reply-name">
+                      {replyMsg.sender_id === user?.id ? "You" : selectedUser?.name}
+                    </span>
+
+                    <span className="reply-text">
+                      {replyMsg.message}
+                    </span>
+                  </div>
+
+                  <button
+                    className="reply-close"
+                    onClick={() => setReplyMsg(null)}
+                  >
+                    ✕
+                  </button>
+
+                </div>
+              )}
+
+              <div className="input-row">
+
+              <textarea
+                value={text}
+                onChange={(e) => {
+                  setText(e.target.value);
+
+                  supabase.channel("typing-channel").send({
+                    type: "broadcast",
+                    event: "typing",
+                    payload: {
+                      sender: user.id,
+                      receiver: receiver
+                    }
+                  });
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+
+                    if (editingMsg) {
+                      updateMessage();   // ⭐ edit save
+                    } else {
+                      sendMessage();     // ⭐ normal send
+                    }
+                  }
+
+                  if (e.key === "Escape") {
+                    setEditingMsg(null);
+                    setText("");
+                  }
+                }}
+                placeholder={editingMsg ? "Edit message..." : "Type a message..."}
+                rows="2"
+              />
+
+                            
+                </div>
                 </div>
               ) : (
                 <div className="banned">
