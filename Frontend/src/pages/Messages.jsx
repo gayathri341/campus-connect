@@ -19,7 +19,10 @@ export default function Messages() {
   const [replyMsg, setReplyMsg] = useState(null);
   const [editingMsg, setEditingMsg] = useState(null);
   const menuTimer = useRef(null);
-
+ 
+  const chatRef = useRef(null);
+const [showNewMsgBtn, setShowNewMsgBtn] = useState(false);
+const [isAtBottom, setIsAtBottom] = useState(true);
   // Get logged user
   useEffect(() => {
     const getUser = async () => {
@@ -207,6 +210,7 @@ useEffect(() => {
     
   }, [receiver, user]);
   useEffect(() => {
+ 
     loadMessages();
   }, [loadMessages]);
  // Mark messages as seen when chat is opened
@@ -228,9 +232,40 @@ useEffect(() => {
   // Auto scroll
   // -------------------------
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+
+    if (!chatRef.current) return;
+  
+    if (isAtBottom) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      setShowNewMsgBtn(true);
+    }
+  
   }, [messages]);
 
+  useEffect(() => {
+    const container = chatRef.current;
+  
+    const handleScroll = () => {
+      if (!container) return;
+  
+      const threshold = 100;
+  
+      const atBottom =
+        container.scrollHeight - container.scrollTop - container.clientHeight <
+        threshold;
+  
+      setIsAtBottom(atBottom);
+  
+      if (atBottom) {
+        setShowNewMsgBtn(false);
+      }
+    };
+  
+    container?.addEventListener("scroll", handleScroll);
+  
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, []);
   // -------------------------
   // Realtime messages
   // -------------------------
@@ -282,13 +317,7 @@ useEffect(() => {
         ) {
           setMessages((prev) =>
             prev.map((msg) =>
-              msg.id === updated.id
-                ? {
-                    ...msg,
-                    delivered: updated.delivered,
-                    seen: updated.seen,
-                  }
-                : msg
+              msg.id === updated.id ? { ...msg, ...updated } : msg
             )
           );
         }
@@ -351,7 +380,7 @@ useEffect(() => {
   // Send message
   // -------------------------
   const sendMessage = async () => {
-    if (!text || !receiver || banned) return;
+    if (!text.trim() || !receiver || banned) return;
 
     await supabase.from("messages").insert([
       {
@@ -394,32 +423,61 @@ useEffect(() => {
     setEditingMsg(msg);
     setText(msg.message);
   };
-  const updateMessage = async () => {
+  const handleSubmit = async () => {
 
-    if (!editingMsg || !text.trim()) return;
+    console.log("handleSubmit triggered");
+    console.log("Current text:", text);
+    console.log("Editing message:", editingMsg);
   
-    const { error } = await supabase
-      .from("messages")
-      .update({ message: text, edited: true })
-      .eq("id", editingMsg.id);
-  
-    if (error) {
-      console.log(error);
+    if (!text.trim()) {
+      console.log("Empty text - nothing to send");
       return;
     }
   
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === editingMsg.id
-          ? { ...m, message: text, edited: true }
-          : m
-      )
-    );
+    if (editingMsg?.id) {
   
-    setEditingMsg(null);
-    setText("");
+      console.log("Updating message ID:", editingMsg.id);
+  
+      const { data, error } = await supabase
+        .from("messages")
+        .update({
+          message: text,
+          edited: true
+        })
+        .eq("id", editingMsg.id)
+        .eq("sender_id", user.id)
+        .select();
+  
+      console.log("Supabase update result:", data);
+  
+      if (error) {
+        console.log("Update error:", error);
+        return;
+      }
+  
+      console.log("Local state updating");
+  
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === editingMsg.id
+            ? { ...m, message: text, edited: true }
+            : m
+        )
+      );
+  
+      setEditingMsg(null);
+      setText("");
+  
+      console.log("Edit finished");
+  
+    } else {
+  
+      console.log("Sending new message");
+      sendMessage();
+  
+    }
   };
-
+  
   const reactToMessage = async (messageId, emoji) => {
     if (!user) return;
   
@@ -592,7 +650,7 @@ useEffect(() => {
                 {selectedUser?.name}
               </div>
 
-              <div className="chat-messages">
+              <div className="chat-messages" ref={chatRef}>
                   {messages.map((msg) => {
 
                     const userReaction = msg.message_reactions?.find(
@@ -610,99 +668,99 @@ useEffect(() => {
                         }
                         style={{ position: "relative" }}
                       >
-<div
-  className="msg-row reaction-wrapper"
-  onMouseEnter={(e) => {
-    if (menuTimer.current) {
-      clearTimeout(menuTimer.current);
-    }
+                    <div
+                      className="msg-row reaction-wrapper"
+                      onMouseEnter={(e) => {
+                        if (menuTimer.current) {
+                          clearTimeout(menuTimer.current);
+                        }
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    const chatContainer = document.querySelector(".chat-messages");
-    const containerRect = chatContainer.getBoundingClientRect();
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const chatContainer = document.querySelector(".chat-messages");
+                        const containerRect = chatContainer.getBoundingClientRect();
 
-    const spaceBelow = containerRect.bottom - rect.bottom;
-    const menuHeight = 140;
+                        const spaceBelow = containerRect.bottom - rect.bottom;
+                        const menuHeight = 140;
 
-    if (spaceBelow < menuHeight) {
-      setMenuDirection("up");
-    } else {
-      setMenuDirection("down");
-    }
+                        if (spaceBelow < menuHeight) {
+                          setMenuDirection("up");
+                        } else {
+                          setMenuDirection("down");
+                        }
 
-    setHoveredMsg(msg.id);
-  }}
-  onMouseLeave={() => {
-    menuTimer.current = setTimeout(() => {
-      setHoveredMsg(null);
-    }, 400);
-  }}
->
+                        setHoveredMsg(msg.id);
+                      }}
+                      onMouseLeave={() => {
+                        menuTimer.current = setTimeout(() => {
+                          setHoveredMsg(null);
+                        }, 400);
+                      }}
+                    >
 
-{/* HOVER MENU */}
-{hoveredMsg === msg.id && (
-  <div
-    className={`message-menu ${menuDirection}`}
-    onMouseEnter={() => {
-      if (menuTimer.current) {
-        clearTimeout(menuTimer.current);
-      }
-      setHoveredMsg(msg.id);
-    }}
-    onMouseLeave={() => {
-      menuTimer.current = setTimeout(() => {
-        setHoveredMsg(null);
-      }, 400);
-    }}
-  >
+                    {/* HOVER MENU */}
+                    {hoveredMsg === msg.id && (
+                      <div
+                        className={`message-menu ${menuDirection}`}
+                        onMouseEnter={() => {
+                          if (menuTimer.current) {
+                            clearTimeout(menuTimer.current);
+                          }
+                          setHoveredMsg(msg.id);
+                        }}
+                        onMouseLeave={() => {
+                          menuTimer.current = setTimeout(() => {
+                            setHoveredMsg(null);
+                          }, 400);
+                        }}
+                      >
 
-    {/* REACTIONS ROW */}
-    <div className="menu-reactions">
-      {["👍","❤️","😂","😮","😢","🔥"].map((emoji) => (
-        <span
-          key={emoji}
-          className={`reaction-emoji ${
-            userReaction?.reaction === emoji ? "active-reaction" : ""
-          }`}
-          onClick={() => reactToMessage(msg.id, emoji)}
-        >
-          {emoji}
-        </span>
-      ))}
-    </div>
+                        {/* REACTIONS ROW */}
+                        <div className="menu-reactions">
+                          {["👍","❤️","😂","😮","😢","🔥"].map((emoji) => (
+                            <span
+                              key={emoji}
+                              className={`reaction-emoji ${
+                                userReaction?.reaction === emoji ? "active-reaction" : ""
+                              }`}
+                              onClick={() => reactToMessage(msg.id, emoji)}
+                            >
+                              {emoji}
+                            </span>
+                          ))}
+                        </div>
 
-    <div className="menu-divider"></div>
+                        <div className="menu-divider"></div>
 
-    <button
-      className="menu-item"
-      onClick={() => setReplyMsg(msg)}
-    >
-      <MdReply size={18} />
-      Reply
-    </button>
+                        <button
+                          className="menu-item"
+                          onClick={() => setReplyMsg(msg)}
+                        >
+                          <MdReply size={18} />
+                          Reply
+                        </button>
 
-    {msg.sender_id === user?.id && (
-      <button
-        className="menu-item"
-        onClick={() => startEdit(msg)}
-      >
-        <MdEdit size={18} />
-        Edit
-      </button>
-    )}
+                        {msg.sender_id === user?.id && (
+                          <button
+                            className="menu-item"
+                            onClick={() => startEdit(msg)}
+                          >
+                            <MdEdit size={18} />
+                            Edit
+                          </button>
+                        )}
 
-    {msg.sender_id === user?.id && (
-      <button
-        className="menu-item delete"
-        onClick={() => deleteMessage(msg.id)}
-      >
-        <MdDelete size={18} />
-        Delete
-      </button>
-    )}
+                        {msg.sender_id === user?.id && (
+                          <button
+                            className="menu-item delete"
+                            onClick={() => deleteMessage(msg.id)}
+                          >
+                            <MdDelete size={18} />
+                            Delete
+                          </button>
+                        )}
 
-  </div>
-)}
+                      </div>
+                    )}
 
                       {/* REPLY PREVIEW (NEW) */}
                       {msg.reply_to_message && (
@@ -786,6 +844,18 @@ useEffect(() => {
 
                   <div ref={bottomRef}></div>
                 </div>
+               {/* ⭐ ADD BUTTON HERE */}
+                {showNewMsgBtn && (
+                  <button
+                    className="new-msg-btn"
+                    onClick={() => {
+                      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+                      setShowNewMsgBtn(false);
+                    }}
+                  >
+                    ↓ Jump to latest
+                  </button>
+                )}
 
               {!banned ? (
                 
@@ -815,9 +885,37 @@ useEffect(() => {
 
                 </div>
               )}
+              {editingMsg && (
+                <div className="edit-preview-bar">
+
+                  <div className="reply-left-bar"></div>
+
+                  <div className="reply-content">
+                    <span className="reply-name">
+                      Editing message
+                    </span>
+
+                    <span className="reply-text">
+                      {editingMsg.message}
+                    </span>
+                  </div>
+
+                  <button
+                    className="reply-close"
+                    onClick={() => {
+                      setEditingMsg(null);
+                      setText("");
+                    }}
+                  >
+                    ✕
+                  </button>
+
+                </div>
+              )}
 
               <div className="input-row">
 
+              
               <textarea
                 value={text}
                 onChange={(e) => {
@@ -835,14 +933,9 @@ useEffect(() => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
-
-                    if (editingMsg) {
-                      updateMessage();   // ⭐ edit save
-                    } else {
-                      sendMessage();     // ⭐ normal send
-                    }
+                    handleSubmit();
                   }
-
+                
                   if (e.key === "Escape") {
                     setEditingMsg(null);
                     setText("");
@@ -851,7 +944,7 @@ useEffect(() => {
                 placeholder={editingMsg ? "Edit message..." : "Type a message..."}
                 rows="2"
               />
-
+                
                             
                 </div>
                 </div>
