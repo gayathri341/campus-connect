@@ -1,10 +1,10 @@
 .chat-container{
     display:flex;
-    height:86vh;
+    height:91.6vh;
     background:#ffffff;
     border-radius:10px;
     margin:0;
-    overflow:hidden;
+    overflow:visible;
     }
     
     /* LEFT SIDEBAR */
@@ -164,7 +164,7 @@
     flex:1;
     display:flex;
     flex-direction:column;
-    background:#ffffff;
+    background:transparent;
     position:relative;
     
     }
@@ -183,9 +183,11 @@
     display:flex;
     flex-direction:column;
     gap:4px;
-    background-color: #f5f7fb;
-    background-image: radial-gradient(#dcdcdc 1px, transparent 1px);
-    background-size: 20px 20px;
+    background-color:#f5f7fb;
+    background-image:
+      radial-gradient(#dcdcdc 1px, transparent 1px),
+      radial-gradient(#eaeaea 1px, transparent 1px);
+    background-size:20px 20px,40px 40px;
     min-height:0;
 
     }
@@ -288,7 +290,7 @@
 
       .reaction-badge{
         position:absolute;
-        bottom:-15px;
+        bottom:-12px;
         background:white;
         border-radius:50%;
         padding:2.5px 3px;
@@ -297,16 +299,18 @@
         display:flex;
         align-items:center;
         justify-content:center;
+        z-index:30;
+       
       }
       
       /* reaction for messages from others */
       .other-reaction{
-        right:-6px;
+        right:8px;
       }
       
       /* reaction for my messages */
       .my-reaction{
-        left:-6px;
+        left:8px;
       }
       .reaction-emoji{
         cursor:pointer;
@@ -349,7 +353,7 @@
         margin-top:8px;
       }
       .message.other .message-menu{
-        right:-40px;
+        right:-150px;
       }
       .message.me .message-menu{
         left:-80px;
@@ -466,10 +470,13 @@
   display:flex;
   flex-direction:column;
   gap:6px;
-  padding:12px;
-  border-top:1px solid #eee;
-  box-shadow:0 -2px 6px rgba(0,0,0,0.04);
-  background: transparent;   
+  padding:6px 6px;
+  border-top:none;
+  background:transparent;
+  backdrop-filter: none;
+  position:sticky;
+  bottom:0;
+
 }
 
 /* INPUT ROW */
@@ -484,24 +491,33 @@
 
 .input-row textarea{
   flex:1;
+
   min-height:42px;
   max-height:120px;
   resize:none;
-
-  border-radius:22px;
-  border:1px solid #ddd;
-  padding:10px 15px;
-
+  background: rgba(255,255,255,0.25);  /* glass feel */
+  backdrop-filter: blur(8px);
+  border: none;             /* remove border */
+  outline: none;
+  border-radius: 25px;
+  padding: 10px 16px;
+  box-shadow: 
+  0 6px 16px rgba(0,0,0,0.15),
+  0 0 0 1px rgba(255,255,255,0.2);/* floating look */
   font-size:14px;
   line-height:1.4;
-
+  transition: all 0.2s ease;
   overflow-y:auto;
-  background:#f0f2f5;
+
+  
 }
 
+/* FOCUS */
 .input-row textarea:focus{
   outline:none;
-  border:1px solid #ddd;
+  box-shadow: 
+    0 8px 20px rgba(0,0,0,0.2),
+    0 0 0 2px rgba(130,52,84,0.2);  /* subtle glow instead of border */
 }
 
 .input-row textarea:focus-visible{
@@ -515,7 +531,7 @@
   align-items:center;
   gap:10px;
 
-  background:rgba(0,0,0,0.2);
+  background:rgba(91, 169, 176, 0.2);
   padding:8px 10px;
   border-radius:8px;
 
@@ -525,7 +541,7 @@
 .reply-left-bar{
   width:4px;
   height:100%;
-  background:#25d366;
+  background:#337194;
   border-radius:4px;
 }
 
@@ -537,14 +553,14 @@
 }
 
 .reply-name{
-  font-size:13px;
+  font-size:14px;
   font-weight:600;
-  color:#25d366;
+  color:#1d6772;
 }
 
 .reply-text{
   font-size:13px;
-  color:#ddd;
+  color:#000000;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
@@ -554,12 +570,13 @@
   background:none;
   border:none;
   font-size:16px;
+  font-weight:bold;
   cursor:pointer;
-  color:#ccc;
+  color:#6b2e56;
 }
 
 .reply-close:hover{
-  color:white;
+  color:rgb(58, 137, 255);
 }
 
 /* MESSAGE CONTENT */
@@ -644,11 +661,26 @@
       align-items:center;
       gap:10px;
     
-      background:rgba(255, 193, 7, 0.15);
-      padding:8px 10px;
+      background:rgba(125, 43, 73, 0.186);
+      padding:14px 10px;
       border-radius:8px;
     
-      border-left:4px solid #ffc107;
+      border-left:4px solid #823454;
+    }
+    .edit-name
+    {
+      color:#6b2e56;
+      font-size:14px;
+      font-weight:600;
+    }
+
+    .edit-close{
+      background:none;
+      border:none;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+      color:#6b2e56;
     }
 
     .new-msg-btn{
@@ -658,7 +690,7 @@
       transform:translateX(-50%);
     
       background:#1e8e7e;
-      color:white;
+      color:rgb(0, 0, 0);
     
       border:none;
       border-radius:20px;

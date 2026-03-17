@@ -158,6 +158,17 @@ useEffect(() => {
     loadConnections();
   }, [loadConnections]);
 
+  useEffect(() => {
+    if (connections.length > 0 && !receiver) {
+  
+      const sorted = [...connections].sort((a, b) =>
+        new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
+      );
+  
+      setReceiver(sorted[0].id);
+    }
+  }, [connections, receiver]);
+  
   // refresh online status every 4 sec
   useEffect(() => {
     if (!user) return;
@@ -792,7 +803,7 @@ useEffect(() => {
                   {/* MESSAGE TEXT */}
                   <span className="msg-text">{msg.message}
                   {msg.edited && (
-                      <span className="edited-label"> edited</span>
+                      <span className="edited-label"> Edited</span>
                     )}
                   </span>
 
@@ -888,10 +899,10 @@ useEffect(() => {
               {editingMsg && (
                 <div className="edit-preview-bar">
 
-                  <div className="reply-left-bar"></div>
+                  
 
                   <div className="reply-content">
-                    <span className="reply-name">
+                    <span className="edit-name">
                       Editing message
                     </span>
 
@@ -901,7 +912,7 @@ useEffect(() => {
                   </div>
 
                   <button
-                    className="reply-close"
+                    className="edit-close"
                     onClick={() => {
                       setEditingMsg(null);
                       setText("");

@@ -19,6 +19,7 @@
     background: var(--light-bg);
     color: var(--text);
     scroll-behavior: smooth;
+    height:100%;
   }
   
   /* reusable UI only */
