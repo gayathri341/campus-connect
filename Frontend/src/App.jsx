@@ -96,6 +96,14 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/messages/:id"
+        element={
+          <ProtectedRoute>
+            <Messages />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/connections"

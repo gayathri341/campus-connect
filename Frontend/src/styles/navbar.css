@@ -158,3 +158,26 @@
   justify-content:center;
   font-weight:600;
 }
+.nav-icon-wrapper{
+  position: relative;
+}
+
+.nav-top-badge{
+  position: absolute;
+  top: -5px;
+  right: -6px;
+  background: red;
+  color: white;
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+.nav-msg-badge,
+.nav-top-badge{
+  box-shadow: 0 0 0 2px white;
+}

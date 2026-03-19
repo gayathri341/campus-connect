@@ -257,7 +257,7 @@
       }
       
       .message.other {
-        background: #b47fc2;
+        background: #a452ba;
         border-radius: 14px 14px 14px 2px;
         position: relative;
         color: white;
@@ -277,7 +277,7 @@
         width:0;
         height:0;
       
-        border-right:8px solid #b47fc2;
+        border-right:8px solid#a452ba;
         border-top:6px solid transparent;
         border-bottom:6px solid transparent;
       }
@@ -589,8 +589,8 @@
 
 /* REPLY BUBBLE (inside message) */
 .reply-bubble{
-  background:#103f36;
-  border-left:4px solid #25d366;
+  background:#696f6eb4;
+  border-left:4px solid #ffffff;
 
   padding:6px 10px;
   border-radius:6px;
@@ -614,16 +614,16 @@
     box-shadow:0 0 0px rgba(0,255,180,0);
   }
   40%{
-    box-shadow:0 0 18px rgba(0,255,180,0.8);
+    box-shadow:0 0 18px rgba(72, 84, 75, 0.403);
   }
   100%{
-    box-shadow:0 0 0px rgba(0,255,180,0);
+    box-shadow:0 0 0px rgba(48, 210, 162, 0);
   }
 }
 .reply-sender{
   font-size:13px;
   font-weight:600;
-  color:#25d366;
+  color:#ffffff;
   
 }
 
@@ -706,4 +706,29 @@
     
     .new-msg-btn:hover{
       background:#166f64;
+    }
+
+    .warning-toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #ff4d4f;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      animation: slideIn 0.3s ease;
+      z-index: 999;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }

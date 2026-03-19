@@ -158,7 +158,6 @@ export default function Dashboard() {
             <div 
               key={user.user_id} 
               className="cc-user-card"
-              onClick={() => navigate(`/profile/${user.user_id}`)}
               style={{ cursor: 'pointer' }}
             >
               <div className="cc-user-header">
@@ -173,7 +172,12 @@ export default function Dashboard() {
                 </div>
 
                 <div className="cc-user-meta">
-                  <h4 className="cc-user-name">{user.name}</h4>
+                  <h4 
+                    className="cc-user-name clickable-name"
+                    onClick={() => navigate(`/profile/${user.user_id}`)}
+                  >
+                    {user.name}
+                  </h4>
                   <span className="cc-domain-tag">{user.domain}</span>
                 </div>
               </div>

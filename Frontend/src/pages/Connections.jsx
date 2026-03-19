@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import Navbar from '../components/Navbar'
 import '../styles/connections.css'
@@ -9,7 +10,7 @@ import { MdSchool, MdBusiness, MdChatBubbleOutline, MdPersonOff, MdCheck, MdClos
 
 export default function Connections() {
   const location = useLocation()
-
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState(
     location.state?.tab === 'requests' ? 'requests' : 'connections'
   )
@@ -18,7 +19,7 @@ export default function Connections() {
   const [connections, setConnections] = useState([])
   const [requests, setRequests] = useState([])
 
-
+  
  
 
   /* ============================
@@ -52,6 +53,8 @@ export default function Connections() {
         `)
         .eq('status', 'accepted')
         .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+
+        
     
       const { data: pending } = await supabase
         .from('connections')
@@ -80,6 +83,10 @@ export default function Connections() {
      CALL ON LOAD
      ============================ */
      useEffect(() => {
+
+      // 🔴 ADD THIS LINE
+      localStorage.setItem("connections_seen", new Date().toISOString());
+    
       const init = async () => {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
@@ -187,8 +194,10 @@ export default function Connections() {
                     <MdPeopleOutline className="ccn-info-icon" />
                     <p className="ccn-college">{otherUser.batch}</p>
                   </div>
-
-                  <button className="ccn-message-btn">
+                  <button 
+                    className="ccn-message-btn"
+                    onClick={() => navigate(`/messages/${otherUser.user_id}`)}
+                  >
                     <MdChatBubbleOutline className="ccn-msg-icon" />
                     Message
                   </button>

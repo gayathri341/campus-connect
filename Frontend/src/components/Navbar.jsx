@@ -12,6 +12,8 @@ export default function Navbar() {
 
   const [unreadTotal, setUnreadTotal] = useState(0);
   const navigate = useNavigate()
+  const [pendingRequests, setPendingRequests] = useState(0);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   // Initial unread fetch
   useEffect(() => {
@@ -36,6 +38,76 @@ export default function Navbar() {
 
   }, []);
 
+  useEffect(() => {
+    const fetchRequests = async () => {
+      const { data } = await supabase.auth.getUser();
+      const user = data.user;
+  
+      if (!user) return;
+  
+      const lastSeen = localStorage.getItem("connections_seen");
+  
+      let query = supabase
+        .from("connections")
+        .select("*", { count: "exact", head: true })
+        .eq("receiver_id", user.id)
+        .eq("status", "pending");
+  
+      if (lastSeen) {
+        query = query.gt("created_at", lastSeen);
+      }
+  
+      const { count } = await query;
+  
+      setPendingRequests(count || 0);
+    };
+  
+    fetchRequests();
+  }, []);
+
+  useEffect(() => {
+    const refresh = async () => {
+      const { data } = await supabase.auth.getUser();
+      const user = data.user;
+  
+      if (!user) return;
+  
+      const lastSeen = localStorage.getItem("connections_seen");
+  
+      let query = supabase
+        .from("connections")
+        .select("*", { count: "exact", head: true })
+        .eq("receiver_id", user.id)
+        .eq("status", "pending");
+  
+      if (lastSeen) {
+        query = query.gt("created_at", lastSeen);
+      }
+  
+      const { count } = await query;
+  
+      setPendingRequests(count || 0);
+    };
+  
+    const channel = supabase
+      .channel("connection-requests")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "connections",
+        },
+        refresh
+      )
+      .subscribe();
+  
+    return () => supabase.removeChannel(channel);
+  }, []);
+
+  useEffect(() => {
+    setNotificationCount(unreadTotal + pendingRequests);
+  }, [unreadTotal, pendingRequests]);
 
   // Realtime listener
   useEffect(() => {
@@ -78,6 +150,7 @@ export default function Navbar() {
   }, []);
 
 
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
     navigate('/login')
@@ -115,11 +188,16 @@ export default function Navbar() {
 
             </span>
           </NavLink>
-
           <NavLink to="/connections" className="nav-item">
-            <span className="nav-link-content">
+            <span className="nav-link-content nav-msg-wrapper">
               <MdPeople className="nav-icon" />
               <span className="nav-text">Connections</span>
+
+              {pendingRequests > 0 && (
+                <span className="nav-msg-badge">
+                  {pendingRequests > 9 ? "9+" : pendingRequests}
+                </span>
+              )}
             </span>
           </NavLink>
 
@@ -137,7 +215,15 @@ export default function Navbar() {
           className="nav-icon-btn"
           onClick={() => navigate('/notifications')}
         >
-          <MdNotificationsNone className="nav-top-icon" />
+          <div className="nav-icon-wrapper">
+            <MdNotificationsNone className="nav-top-icon" />
+
+            {notificationCount > 0 && (
+              <span className="nav-top-badge">
+                {notificationCount > 9 ? "9+" : notificationCount}
+              </span>
+            )}
+          </div>
         </button>
 
         <button

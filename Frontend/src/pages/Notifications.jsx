@@ -9,6 +9,7 @@ export default function Notifications() {
   const navigate = useNavigate()
 
   useEffect(() => {
+    localStorage.setItem("notifications_seen", new Date().toISOString());
     const loadNotifications = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return

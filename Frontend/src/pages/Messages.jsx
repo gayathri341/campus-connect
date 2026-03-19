@@ -1,10 +1,12 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "../supabase";
+import { useParams } from 'react-router-dom'
 import Navbar from "../components/Navbar";
 import "../styles/messages.css";
 import { Check, CheckCheck } from "lucide-react";
 import { MdReply, MdEdit, MdDelete } from "react-icons/md";
+
 export default function Messages() {
   const [user, setUser] = useState(null);
   const [connections, setConnections] = useState([]);
@@ -19,10 +21,12 @@ export default function Messages() {
   const [replyMsg, setReplyMsg] = useState(null);
   const [editingMsg, setEditingMsg] = useState(null);
   const menuTimer = useRef(null);
- 
+  const [warningMsg, setWarningMsg] = useState(null);
   const chatRef = useRef(null);
-const [showNewMsgBtn, setShowNewMsgBtn] = useState(false);
-const [isAtBottom, setIsAtBottom] = useState(true);
+  const [showNewMsgBtn, setShowNewMsgBtn] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(true); 
+  const { id } = useParams()
+
   // Get logged user
   useEffect(() => {
     const getUser = async () => {
@@ -159,15 +163,33 @@ useEffect(() => {
   }, [loadConnections]);
 
   useEffect(() => {
-    if (connections.length > 0 && !receiver) {
+    if (id && connections.length > 0) {
+      const userExists = connections.find(u => u.id === id)
   
-      const sorted = [...connections].sort((a, b) =>
-        new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
-      );
-  
-      setReceiver(sorted[0].id);
+      if (userExists) {
+        setReceiver(id)
+      }
     }
-  }, [connections, receiver]);
+  }, [id, connections])
+
+useEffect(() => {
+  if (id && connections.length > 0) {
+    const userExists = connections.find(u => u.id === id)
+
+    if (userExists) {
+      setReceiver(id)
+      return // 🔥 important
+    }
+  }
+
+  if (connections.length > 0 && !receiver) {
+    const sorted = [...connections].sort((a, b) =>
+      new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
+    );
+
+    setReceiver(sorted[0].id);
+  }
+}, [id, connections, receiver])
   
   // refresh online status every 4 sec
   useEffect(() => {
@@ -363,6 +385,21 @@ useEffect(() => {
     supabase.removeChannel(channel);
   };
 }, [loadMessages]);
+
+
+  // Warning Effect
+
+
+useEffect(() => {
+  if (warningMsg) {
+    const timer = setTimeout(() => {
+      setWarningMsg(null);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }
+}, [warningMsg]);
+
   // -------------------------
   // Typing listener
   // -------------------------
@@ -392,7 +429,24 @@ useEffect(() => {
   // -------------------------
   const sendMessage = async () => {
     if (!text.trim() || !receiver || banned) return;
-
+  
+    // STEP 1: call edge function
+    const { data, error } = await supabase.functions.invoke("check-message", {
+      body: { message: text }
+    });
+  
+    if (error) {
+      console.log("Edge function error:", error);
+      return;
+    }
+  
+    // STEP 2: if abusive
+    if (data.flagged) {
+      await handleWarning(); // ⚠ call warning system
+      return;
+    }
+  
+    // STEP 3: send message normally
     await supabase.from("messages").insert([
       {
         sender_id: user.id,
@@ -400,10 +454,58 @@ useEffect(() => {
         message: text,
         reply_to: replyMsg ? replyMsg.id : null
       }
-      ]);
+    ]);
+  
     setReplyMsg(null);
     setTypingUser(null);
     setText("");
+  };
+
+  const handleWarning = async () => {
+    const { data } = await supabase
+      .from("user_moderation")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+  
+    let warningCount = 1;
+  
+    if (data) {
+      warningCount = (data.warning_count || 0) + 1;
+  
+      await supabase
+        .from("user_moderation")
+        .update({ warning_count: warningCount })
+        .eq("user_id", user.id);
+    } else {
+      await supabase.from("user_moderation").insert({
+        user_id: user.id,
+        warning_count: 1
+      });
+    }
+  
+    setWarningMsg(`⚠ Please avoid abusive language (Warnings: ${warningCount})`);
+  
+    // STEP 7 trigger
+    if (warningCount >= 10) {
+      await banUser();
+    }
+  };
+
+  const banUser = async () => {
+    const bannedUntil = new Date();
+    bannedUntil.setDate(bannedUntil.getDate() + 14);
+  
+    await supabase
+      .from("user_moderation")
+      .update({
+        banned_until: bannedUntil.toISOString()
+      })
+      .eq("user_id", user.id);
+  
+    setBanned(true);
+  
+    alert("🚫 You are banned for 14 days due to abusive behaviour");
   };
 
   // Delete Message
@@ -491,6 +593,11 @@ useEffect(() => {
   
   const reactToMessage = async (messageId, emoji) => {
     if (!user) return;
+      // 🚫 BLOCK REACTION IF BANNED
+    if (banned) {
+      setWarningMsg("🚫 You cannot react while banned");
+      return;
+    }
   
     const message = messages.find((m) => m.id === messageId);
   
@@ -600,45 +707,45 @@ useEffect(() => {
                     </span>
                   </div>
 
-{/* LAST MESSAGE ROW */}
-<div className="last-msg-row">
+          {/* LAST MESSAGE ROW */}
+          <div className="last-msg-row">
 
-  <div className="last-msg">
+            <div className="last-msg">
 
-    {typingUser === u.id ? (
-      <span className="typing">Typing...</span>
-    ) : (
-      <>
-        {u.lastMessageSender === user?.id && (
-          <span
-            className={`ticks-small ${
-              u.lastSeen ? "seen" : u.lastDelivered ? "delivered" : "sent"
-            }`}
-          >
-            {u.lastSeen ? (
-              <CheckCheck size={14} />
-            ) : u.lastDelivered ? (
-              <CheckCheck size={14} />
-            ) : (
-              <Check size={14} />
-            )}
-          </span>
-        )}
+              {typingUser === u.id ? (
+                <span className="typing">Typing...</span>
+              ) : (
+                <>
+                  {u.lastMessageSender === user?.id && (
+                    <span
+                      className={`ticks-small ${
+                        u.lastSeen ? "seen" : u.lastDelivered ? "delivered" : "sent"
+                      }`}
+                    >
+                      {u.lastSeen ? (
+                        <CheckCheck size={14} />
+                      ) : u.lastDelivered ? (
+                        <CheckCheck size={14} />
+                      ) : (
+                        <Check size={14} />
+                      )}
+                    </span>
+                  )}
 
-              {u.lastMessage ? u.lastMessage : "Tap to chat"}
-            </>
-          )}
+                        {u.lastMessage ? u.lastMessage : "Tap to chat"}
+                      </>
+                    )}
 
-        </div>
+                  </div>
 
-      {/* UNREAD BADGE */}
-      {u.unreadCount > 0 && (
-        <span className="unread-badge">
-          {u.unreadCount > 5 ? "5+" : u.unreadCount}
-        </span>
-      )}
+                {/* UNREAD BADGE */}
+                {u.unreadCount > 0 && (
+                  <span className="unread-badge">
+                    {u.unreadCount > 5 ? "5+" : u.unreadCount}
+                  </span>
+                )}
 
-    </div>
+              </div>
 
                   </div>
                 </div>
@@ -968,6 +1075,11 @@ useEffect(() => {
           )}
           </div>
       </div>
+      {warningMsg && (
+        <div className="warning-toast">
+          {warningMsg}
+        </div>
+      )}
     </>
   );
 }
