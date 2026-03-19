@@ -27,8 +27,8 @@ export default function Landing() {
       <header className="landing-header">
         
         <div className="logo">
-        <img src={logo} alt="PlaceMent" className="logo-img" />
-          <span>PlaceMent
+        <img src={logo} alt="ConvoSyncra Space" className="logo-img" />
+          <span>ConvoSyncra Space
           </span>
         </div>
   {/* 🔥 NEW NAV LINKS (red marked) */}
@@ -84,7 +84,7 @@ export default function Landing() {
             className="primary-btn large"
             onClick={() => navigate('/login')}
           >
-            Join PlaceMent →
+            Join ConvoSyncra →
           </button>
 
           <button
@@ -169,7 +169,7 @@ export default function Landing() {
       {/* ===== HOW STUDENTS USE SECTION ===== */}
 <section className="howuse-section" id="how-it-works">
   <h2 className="howuse-title">
-    How Students Use <span>PlaceMent</span>
+    How Students Use <span>ConvoSyncra Space</span>
   </h2>
   
   <div className="howuse-layout">
@@ -377,7 +377,7 @@ export default function Landing() {
       Access shared placement resources and real-world experiences.
       Build meaningful connections that support your career journey.”
       <br />
-      <span className="cta-author">– PlaceMent</span>
+      <span className="cta-author">– ConvoSyncra Space</span>
     </p>
 
     <button
@@ -406,7 +406,7 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="landing-footer">
-        © 2026 PlaceMent. Built with ❤️ for students.
+        © 2026 ConvoSyncra Space. Built with ❤️ for students.
       </footer>
     </div>
   );
