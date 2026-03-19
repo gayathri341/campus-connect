@@ -3,14 +3,14 @@ import { supabase } from '../supabase'
 import Navbar from '../components/Navbar'
 import '../styles/dashboard.css'
 import { MdPeopleOutline, MdDescription,MdSchool, MdBusiness, MdCheck, MdPersonOff } from "react-icons/md"
-
+import { useNavigate } from 'react-router-dom'
 
 export default function Dashboard() {
   const [users, setUsers] = useState([])
   const [connections, setConnections] = useState([])
   const [currentUserId, setCurrentUserId] = useState(null)
   const [activeDomain, setActiveDomain] = useState('All')
-
+  const navigate = useNavigate()
   useEffect(() => {
     const loadData = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -155,7 +155,12 @@ export default function Dashboard() {
           }
 
           return (
-            <div key={user.user_id} className="cc-user-card">
+            <div 
+              key={user.user_id} 
+              className="cc-user-card"
+              onClick={() => navigate(`/profile/${user.user_id}`)}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="cc-user-header">
                 <div className="cc-avatar">
                   {user.avatar_url ? (

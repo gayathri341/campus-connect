@@ -48,7 +48,7 @@ export default function Signup() {
     <div className="auth-layout">
       {/* LEFT SIDE */}
       <div className="auth-left">
-      <h1 className="brand-title clickable" onClick={() => navigate('/')}>PlaceMent </h1>
+      <h1 className="brand-title clickable" onClick={() => navigate('/')}> ConvoSyncra</h1>
         <p className="brand-subtitle">
           Your professional network starts here
         </p>

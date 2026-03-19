@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../supabase'
 import Navbar from '../components/Navbar'
 import '../styles/profile.css'
-
+import { useParams } from 'react-router-dom'
 import Plus from "../assets/plus.png"
 import Userd from "../assets/userd.png"
 
@@ -25,7 +25,11 @@ export default function Profile() {
   const [batch, setBatch] = useState('')
   const [availability, setAvailability] = useState('')
   const [placementStatus, setPlacementStatus] = useState('')
+  const { id } = useParams()
 
+  const isOwnProfile = !id || user?.id === id  // 👈 already added
+  
+  
   // avatar
   const fileInputRef = useRef(null)
 
@@ -40,7 +44,7 @@ export default function Profile() {
       const { data } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', id || user.id)
         .single()
 
       if (data) {
@@ -57,7 +61,7 @@ export default function Profile() {
       }
     }
     loadProfile()
-  }, [])
+  }, [id])
 
   const saveProfile = async () => {
     if (!name.trim()) return alert('Name required')
@@ -136,23 +140,25 @@ export default function Profile() {
       <Navbar active="profile" />
 
       <div className="p-container">
-        <div className="p-header">
+       <div className="p-header">
           <div>
-            <h2>My Profile</h2>
+            <h2>{isOwnProfile ? "My Profile" : "Profile"}</h2>
             <p>Manage your professional information</p>
           </div>
 
-          {!isEditing ? (
-            <button className="btn primary" onClick={() => setIsEditing(true)}>
-              Edit Profile
-            </button>
-          ) : (
-            <div className="header-actions">
-              <button className="btn ghost" onClick={() => setIsEditing(false)}>Cancel</button>
-              <button className="btn primary" onClick={saveProfile}>
-                {saving ? 'Saving...' : 'Save'}
+          {isOwnProfile && (
+            !isEditing ? (
+              <button className="btn primary" onClick={() => setIsEditing(true)}>
+                Edit Profile
               </button>
-            </div>
+            ) : (
+              <div className="header-actions">
+                <button className="btn ghost" onClick={() => setIsEditing(false)}>Cancel</button>
+                <button className="btn primary" onClick={saveProfile}>
+                  {saving ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            )
           )}
         </div>
 
