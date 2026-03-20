@@ -8,7 +8,23 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
-
+  const [showPassword, setShowPassword] = useState(false)
+  const handleForgotPassword = async () => {
+    if (!email) {
+      alert("Please enter your email first")
+      return
+    }
+  
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: "http://localhost:5173/reset-password"
+    })
+  
+    if (error) {
+      alert(error.message)
+    } else {
+      alert("Password reset email sent! Check your inbox.")
+    }
+  }
   const handleLogin = async () => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -86,12 +102,27 @@ navigate('/dashboard')
           />
   
           <label>Password</label>
-          <input
-            className="input"
-            type="password"
-            placeholder="••••••••"
-            onChange={e => setPassword(e.target.value)}
-          />
+          <div className="password-wrapper">
+              <input
+                className="input password-input"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                onChange={e => setPassword(e.target.value)}
+              />
+
+              <span
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "visibility_off" : "visibility"}
+              </span>
+            </div>
+            <p 
+              className="forgot-password-link"
+              onClick={handleForgotPassword}
+            >
+              Forgot password?
+            </p>
   
           <button className="create" onClick={handleLogin}>
             Sign In →

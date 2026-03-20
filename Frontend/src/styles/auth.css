@@ -185,3 +185,48 @@
   padding-left: 2.2rem;
 }
 
+/* PASSWORD FIELD WRAPPER */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* INPUT EXTRA PADDING */
+.password-input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+/* EYE ICON */
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  cursor: pointer;
+  font-family: 'Material Icons';
+  font-size: 17px;
+  color: #777;
+  user-select: none;
+  transition: 0.2s ease;
+  top: 50%;
+transform: translateY(-68%);
+}
+
+.toggle-password:hover {
+  color: #00bfa6; /* match your theme */
+}
+/* FORGOT PASSWORD LINK */
+.forgot-password-link {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #6b7280; /* subtle gray */
+  cursor: pointer;
+  text-align: right;
+  transition: all 0.2s ease;
+}
+
+/* HOVER EFFECT */
+.forgot-password-link:hover {
+  color: #00bfa6; /* match your theme green */
+  text-decoration: underline;
+}
