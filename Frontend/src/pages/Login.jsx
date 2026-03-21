@@ -16,7 +16,7 @@ export default function Login() {
     }
   
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "http://localhost:5173/reset-password"
+      redirectTo: "https://convosyncra-space.vercel.app/reset-password"
     })
   
     if (error) {
