@@ -9,6 +9,8 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+  const [showPopup, setShowPopup] = useState(false)
+  const [popupMessage, setPopupMessage] = useState("")
   const handleForgotPassword = async () => {
     if (!email) {
       alert("Please enter your email first")
@@ -22,7 +24,8 @@ export default function Login() {
     if (error) {
       alert(error.message)
     } else {
-      alert("Password reset email sent! Check your inbox.")
+      setPopupMessage("Password reset email sent! Check your inbox.")
+      setShowPopup(true)
     }
   }
   const handleLogin = async () => {
@@ -61,55 +64,58 @@ navigate('/dashboard')
   }
 
   return (
-    <div className="auth-layout">
-      {/* LEFT SIDE */}
-      <div className="auth-left">
-      <h1 className="brand-title clickable" onClick={() => navigate('/')}> ConvoSyncra </h1>
-        <p className="brand-subtitle">Your professional network starts here</p>
+    <>
+      <div className="auth-layout">
+        {/* LEFT SIDE */}
+        <div className="auth-left">
+          <h1 className="brand-title clickable" onClick={() => navigate('/')}>
+            ConvoSyncra
+          </h1>
+          <p className="brand-subtitle">Your professional network starts here</p>
   
-        <div className="feature-card">
-          <h4>Connect</h4>
-          <p>Network with students & professionals</p>
+          <div className="feature-card">
+            <h4>Connect</h4>
+            <p>Network with students & professionals</p>
+          </div>
+  
+          <div className="feature-card">
+            <h4>Chat</h4>
+            <p>Real-time secure messaging</p>
+          </div>
+  
+          <div className="feature-card">
+            <h4>Resources</h4>
+            <p>Access placement materials</p>
+          </div>
+  
+          <p className="brand-footer">Built for students, by students</p>
         </div>
   
-        <div className="feature-card">
-          <h4>Chat</h4>
-          <p>Real-time secure messaging</p>
-        </div>
+        {/* RIGHT SIDE */}
+        <div className="auth-right">
+          <div className="auth-card">
+            <h2>Welcome back</h2>
+            <p className="auth-subtitle">
+              Enter your credentials to access your account
+            </p>
   
-        <div className="feature-card">
-          <h4>Resources</h4>
-          <p>Access placement materials</p>
-        </div>
+            <label>Email</label>
+            <input
+              className="input"
+              type="email"
+              placeholder="you@example.com"
+              onChange={(e) => setEmail(e.target.value)}
+            />
   
-        <p className="brand-footer">Built for students, by students</p>
-      </div>
-  
-      {/* RIGHT SIDE */}
-      <div className="auth-right">
-        <div className="auth-card">
-          <h2>Welcome back</h2>
-          <p className="auth-subtitle">
-            Enter your credentials to access your account
-          </p>
-  
-          <label>Email</label>
-          <input
-            className="input"
-            type="email"
-            placeholder="you@example.com"
-            onChange={e => setEmail(e.target.value)}
-          />
-  
-          <label>Password</label>
-          <div className="password-wrapper">
+            <label>Password</label>
+            <div className="password-wrapper">
               <input
                 className="input password-input"
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                onChange={e => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
               />
-
+  
               <span
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
@@ -117,25 +123,37 @@ navigate('/dashboard')
                 {showPassword ? "visibility_off" : "visibility"}
               </span>
             </div>
-            <p 
+  
+            <p
               className="forgot-password-link"
               onClick={handleForgotPassword}
             >
               Forgot password?
             </p>
   
-          <button className="create" onClick={handleLogin}>
-            Sign In →
-          </button>
+            <button className="create" onClick={handleLogin}>
+              Sign In →
+            </button>
   
-          <p className="auth-footer">
-            Don't have an account?{' '}
-            <span onClick={() => navigate('/signup')}>Sign up</span>
-          </p>
+            <p className="auth-footer">
+              Don't have an account?{' '}
+              <span onClick={() => navigate('/signup')}>Sign up</span>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+  
+      {/* 🔥 POPUP (OUTSIDE MAIN LAYOUT) */}
+      {showPopup && (
+        <div className="custom-popup-overlay">
+          <div className="custom-popup-box">
+            <p>{popupMessage}</p>
+            <button onClick={() => setShowPopup(false)}>
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   )
-  
-  
 }
